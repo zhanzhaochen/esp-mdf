@@ -119,7 +119,7 @@
 #include "freertos/task.h"
 #include "assert.h"
 
-/* Defines to completely disable specific portions of miniz.c: 
+/* Defines to completely disable specific portions of miniz.c:
    If all macros here are defined the only functionality remaining will be CRC-32, adler-32, tinfl, and tdefl. */
 
 /* Define MINIZ_NO_STDIO to disable all usage and any functions which rely on stdio for file I/O. */
@@ -142,7 +142,7 @@
 /* Define MINIZ_NO_ZLIB_COMPATIBLE_NAME to disable zlib names, to prevent conflicts against stock zlib. */
 /*#define MINIZ_NO_ZLIB_COMPATIBLE_NAMES */
 
-/* Define MINIZ_NO_MALLOC to disable all calls to malloc, free, and realloc. 
+/* Define MINIZ_NO_MALLOC to disable all calls to malloc, free, and realloc.
    Note if MINIZ_NO_MALLOC is defined then the user must always provide custom user alloc/free/realloc
    callbacks to the zlib and archive API's, and a few stand-alone helper API's which don't provide custom user
    functions (such as tdefl_compress_mem_to_heap() and tinfl_decompress_mem_to_heap()) won't work. */
@@ -212,8 +212,7 @@ mz_ulong mz_adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len);
 mz_ulong mz_crc32(mz_ulong crc, const unsigned char *ptr, size_t buf_len);
 
 /* Compression strategies. */
-enum
-{
+enum {
     MZ_DEFAULT_STRATEGY = 0,
     MZ_FILTERED = 1,
     MZ_HUFFMAN_ONLY = 2,
@@ -231,8 +230,7 @@ typedef void (*mz_free_func)(void *opaque, void *address);
 typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size_t size);
 
 /* Compression levels: 0-9 are the standard zlib-style levels, 10 is best possible compression (not zlib compatible, and may be very slow), MZ_DEFAULT_COMPRESSION=MZ_DEFAULT_LEVEL. */
-enum
-{
+enum {
     MZ_NO_COMPRESSION = 0,
     MZ_BEST_SPEED = 1,
     MZ_BEST_COMPRESSION = 9,
@@ -251,8 +249,7 @@ enum
 #ifndef MINIZ_NO_ZLIB_APIS
 
 /* Flush values. For typical usage you only need MZ_NO_FLUSH and MZ_FINISH. The other values are for advanced use (refer to the zlib docs). */
-enum
-{
+enum {
     MZ_NO_FLUSH = 0,
     MZ_PARTIAL_FLUSH = 1,
     MZ_SYNC_FLUSH = 2,
@@ -262,8 +259,7 @@ enum
 };
 
 /* Return status codes. MZ_PARAM_ERROR is non-standard. */
-enum
-{
+enum {
     MZ_OK = 0,
     MZ_STREAM_END = 1,
     MZ_NEED_DICT = 2,
@@ -282,8 +278,7 @@ enum
 struct mz_internal_state;
 
 /* Compression/decompression stream struct. */
-typedef struct mz_stream_s
-{
+typedef struct mz_stream_s {
     const unsigned char *next_in; /* pointer to next byte to read */
     unsigned int avail_in;        /* number of bytes available at next_in */
     mz_ulong total_in;            /* total number of bytes consumed so far */

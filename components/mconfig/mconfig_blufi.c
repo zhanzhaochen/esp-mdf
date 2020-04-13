@@ -27,7 +27,7 @@
 #include "mbedtls/aes.h"
 #include "mbedtls/dhm.h"
 #include "mbedtls/md5.h"
-#include "rom/crc.h"
+#include "esp32/rom/crc.h"
 
 #include "mdf_common.h"
 #include "mdf_event_loop.h"

@@ -33,6 +33,7 @@
 
 #include "driver/rtc_io.h"
 #include "driver/adc.h"
+#include "esp_sleep.h"
 
 #include "iot_hts221.h"
 #include "iot_bh1750.h"

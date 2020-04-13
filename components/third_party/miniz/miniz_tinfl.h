@@ -11,8 +11,7 @@ extern "C" {
 /* TINFL_FLAG_HAS_MORE_INPUT: If set, there are more input bytes available beyond the end of the supplied input buffer. If clear, the input buffer contains all remaining input. */
 /* TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF: If set, the output buffer is large enough to hold the entire decompressed stream. If clear, the output buffer is at least the size of the dictionary (typically 32KB). */
 /* TINFL_FLAG_COMPUTE_ADLER32: Force adler-32 checksum computation of the decompressed bytes. */
-enum
-{
+enum {
     TINFL_FLAG_PARSE_ZLIB_HEADER = 1,
     TINFL_FLAG_HAS_MORE_INPUT = 2,
     TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF = 4,
@@ -102,8 +101,7 @@ typedef enum {
 tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_next, size_t *pIn_buf_size, mz_uint8 *pOut_buf_start, mz_uint8 *pOut_buf_next, size_t *pOut_buf_size, const mz_uint32 decomp_flags);
 
 /* Internal/private bits follow. */
-enum
-{
+enum {
     TINFL_MAX_HUFF_TABLES = 3,
     TINFL_MAX_HUFF_SYMBOLS_0 = 288,
     TINFL_MAX_HUFF_SYMBOLS_1 = 32,
@@ -113,15 +111,13 @@ enum
 };
 
 #ifdef CONFIG_MINIZ_SPLIT_TINFL_DECOMPRESSOR_TAG
-typedef struct
-{
+typedef struct {
     mz_uint8 m_code_size[TINFL_MAX_HUFF_SYMBOLS_0];
-    mz_int16 *m_look_up; //[TINFL_FAST_LOOKUP_SIZE] 
+    mz_int16 *m_look_up; //[TINFL_FAST_LOOKUP_SIZE]
     mz_int16 *m_tree; //[TINFL_MAX_HUFF_SYMBOLS_0 * 2]
 } tinfl_huff_table;
 #else
-typedef struct
-{
+typedef struct {
     mz_uint8 m_code_size[TINFL_MAX_HUFF_SYMBOLS_0];
     mz_int16 m_look_up[TINFL_FAST_LOOKUP_SIZE], m_tree[TINFL_MAX_HUFF_SYMBOLS_0 * 2];
 } tinfl_huff_table;
@@ -142,8 +138,7 @@ typedef mz_uint32 tinfl_bit_buf_t;
 #endif
 
 #ifdef CONFIG_MINIZ_SPLIT_TINFL_DECOMPRESSOR_TAG
-struct tinfl_decompressor_tag
-{
+struct tinfl_decompressor_tag {
     mz_uint32 m_state, m_num_bits, m_zhdr0, m_zhdr1, m_z_adler32, m_final, m_type, m_check_adler32, m_dist, m_counter, m_num_extra, m_table_sizes[TINFL_MAX_HUFF_TABLES];
     tinfl_bit_buf_t m_bit_buf;
     size_t m_dist_from_out_buf_start;
@@ -151,8 +146,7 @@ struct tinfl_decompressor_tag
     mz_uint8 m_raw_header[4], m_len_codes[TINFL_MAX_HUFF_SYMBOLS_0 + TINFL_MAX_HUFF_SYMBOLS_1 + 137];
 };
 #else
-struct tinfl_decompressor_tag
-{
+struct tinfl_decompressor_tag {
     mz_uint32 m_state, m_num_bits, m_zhdr0, m_zhdr1, m_z_adler32, m_final, m_type, m_check_adler32, m_dist, m_counter, m_num_extra, m_table_sizes[TINFL_MAX_HUFF_TABLES];
     tinfl_bit_buf_t m_bit_buf;
     size_t m_dist_from_out_buf_start;

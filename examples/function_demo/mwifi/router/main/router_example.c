@@ -385,7 +385,8 @@ void app_main()
      *      group id can be a custom address
      */
     const uint8_t group_id_list[2][6] = {{0x01, 0x00, 0x5e, 0xae, 0xae, 0xae},
-                                        {0x01, 0x00, 0x5e, 0xae, 0xae, 0xaf}};
+        {0x01, 0x00, 0x5e, 0xae, 0xae, 0xaf}
+    };
 
     MDF_ERROR_ASSERT(esp_mesh_set_group_id((mesh_addr_t *)group_id_list,
                                            sizeof(group_id_list) / sizeof(group_id_list[0])));

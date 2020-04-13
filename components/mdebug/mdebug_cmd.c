@@ -14,7 +14,7 @@
 
 #include "esp_console.h"
 #include "argtable3/argtable3.h"
-#include "wpa2/utils/base64.h"
+#include "base64.h"
 
 #include "mdf_common.h"
 #include "mdebug.h"

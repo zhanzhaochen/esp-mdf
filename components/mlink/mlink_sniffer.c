@@ -288,7 +288,7 @@ mdf_err_t mlink_sniffer_data(uint8_t **data, size_t *size)
 
         *size += sniffer_node->data.size + sizeof(sniffer_node->data.size);
 
-        if(!(*data = MDF_REALLOC(*data, *size))){
+        if (!(*data = MDF_REALLOC(*data, *size))) {
             MDF_FREE(*data);
             return MDF_ERR_NO_MEM;
         }

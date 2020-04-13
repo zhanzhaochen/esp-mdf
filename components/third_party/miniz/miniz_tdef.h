@@ -11,8 +11,7 @@ extern "C" {
 
 /* tdefl_init() compression flags logically OR'd together (low 12 bits contain the max. number of probes per dictionary search): */
 /* TDEFL_DEFAULT_MAX_PROBES: The compressor defaults to 128 dictionary probes per dictionary search. 0=Huffman only, 1=Huffman+LZ (fastest/crap compression), 4095=Huffman+LZ (slowest/best compression). */
-enum
-{
+enum {
     TDEFL_HUFFMAN_ONLY = 0,
     TDEFL_DEFAULT_MAX_PROBES = 128,
     TDEFL_MAX_PROBES_MASK = 0xFFF
@@ -27,8 +26,7 @@ enum
 /* TDEFL_FORCE_ALL_STATIC_BLOCKS: Disable usage of optimized Huffman tables. */
 /* TDEFL_FORCE_ALL_RAW_BLOCKS: Only use raw (uncompressed) deflate blocks. */
 /* The low 12 bits are reserved to control the max # of hash probes per dictionary lookup (see TDEFL_MAX_PROBES_MASK). */
-enum
-{
+enum {
     TDEFL_WRITE_ZLIB_HEADER = 0x01000,
     TDEFL_COMPUTE_ADLER32 = 0x02000,
     TDEFL_GREEDY_PARSING_FLAG = 0x04000,
@@ -68,13 +66,12 @@ void *tdefl_write_image_to_png_file_in_memory_ex(const void *pImage, int w, int 
 void *tdefl_write_image_to_png_file_in_memory(const void *pImage, int w, int h, int num_chans, size_t *pLen_out);
 
 /* Output stream interface. The compressor uses this interface to write compressed data. It'll typically be called TDEFL_OUT_BUF_SIZE at a time. */
-typedef mz_bool (*tdefl_put_buf_func_ptr)(const void *pBuf, int len, void *pUser);
+typedef mz_bool(*tdefl_put_buf_func_ptr)(const void *pBuf, int len, void *pUser);
 
 /* tdefl_compress_mem_to_output() compresses a block to an output stream. The above helpers use this function internally. */
 mz_bool tdefl_compress_mem_to_output(const void *pBuf, size_t buf_len, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags);
 
-enum
-{
+enum {
     TDEFL_MAX_HUFF_TABLES = 3,
     TDEFL_MAX_HUFF_SYMBOLS_0 = 288,
     TDEFL_MAX_HUFF_SYMBOLS_1 = 32,
@@ -87,8 +84,7 @@ enum
 
 /* TDEFL_OUT_BUF_SIZE MUST be large enough to hold a single entire compressed output block (using static/fixed Huffman codes). */
 #if TDEFL_LESS_MEMORY
-enum
-{
+enum {
     TDEFL_LZ_CODE_BUF_SIZE = 512,
     TDEFL_OUT_BUF_SIZE = (TDEFL_LZ_CODE_BUF_SIZE * 13) / 10,
     TDEFL_MAX_HUFF_SYMBOLS = 288,
@@ -98,8 +94,7 @@ enum
     TDEFL_LZ_HASH_SIZE = 1 << TDEFL_LZ_HASH_BITS
 };
 #else
-enum
-{
+enum {
     TDEFL_LZ_CODE_BUF_SIZE = 64 * 1024,
     TDEFL_OUT_BUF_SIZE = (TDEFL_LZ_CODE_BUF_SIZE * 13) / 10,
     TDEFL_MAX_HUFF_SYMBOLS = 288,
@@ -128,8 +123,7 @@ typedef enum {
 
 /* tdefl's compression state structure. */
 #ifdef CONFIG_MINIZ_SPLIT_TDEFL_COMPRESSOR
-typedef struct
-{
+typedef struct {
     tdefl_put_buf_func_ptr m_pPut_buf_func;
     void *m_pPut_buf_user;
     mz_uint m_flags, m_max_probes[2];
@@ -155,8 +149,7 @@ typedef struct
     mz_uint8 *m_output_buf; //[TDEFL_OUT_BUF_SIZE]
 } tdefl_compressor;
 #else
-typedef struct
-{
+typedef struct {
     tdefl_put_buf_func_ptr m_pPut_buf_func;
     void *m_pPut_buf_user;
     mz_uint m_flags, m_max_probes[2];

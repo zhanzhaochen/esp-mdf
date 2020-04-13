@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include "errno.h"
 
-#include "rom/rtc.h"
-#include "rom/crc.h"
+#include "esp32/rom/rtc.h"
+#include "esp32/rom/crc.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"

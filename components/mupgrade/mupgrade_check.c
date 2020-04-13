@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "rom/rtc.h"
+#include "esp32/rom/rtc.h"
 
 #include "mupgrade.h"
 
@@ -107,7 +107,7 @@ static bool restart_trigger()
     return ret;
 }
 
-#ifndef CONFIG_FREERTOS_UNICORE
+// #ifndef CONFIG_FREERTOS_UNICORE
 
 static void mupgrade_version_fallback_task(void *arg)
 {
@@ -120,7 +120,7 @@ static void mupgrade_version_fallback_task(void *arg)
     vTaskDelete(NULL);
 }
 
-#endif /**< CONFIG_FREERTOS_UNICORE */
+// #endif /**< CONFIG_FREERTOS_UNICORE */
 
 #endif /**< CONFIG_MUPGRADE_VERSION_FALLBACK_RESTART */
 
@@ -133,20 +133,8 @@ __attribute((constructor)) mdf_err_t mupgrade_partition_switch()
 
 #ifdef CONFIG_MUPGRADE_VERSION_FALLBACK_RESTART
 
-#ifdef CONFIG_FREERTOS_UNICORE
-    mdf_err_t ret = MDF_OK;
-
-    if (restart_trigger()) {
-        ret = mupgrade_version_fallback();
-        MDF_ERROR_CHECK(ret != MDF_OK, ret, "esp_ota_set_boot_partition failed!");
-
-        esp_restart();
-    }
-
-#else
     xTaskCreate(mupgrade_version_fallback_task, "mupgrade_version_fallback", 4 * 1024,
                 NULL, CONFIG_MDF_TASK_DEFAULT_PRIOTY + 5, NULL);
-#endif /**< CONFIG_FREERTOS_UNICORE */
 
 #endif /**< CONFIG_MUPGRADE_VERSION_FALLBACK_RESTART */
 

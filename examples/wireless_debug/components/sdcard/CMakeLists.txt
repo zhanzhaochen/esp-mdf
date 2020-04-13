@@ -1,9 +1,6 @@
 
-set(COMPONENT_SRCS "sdcard.c")
-
-set(COMPONENT_ADD_INCLUDEDIRS ". include")
-
-# requirements can't depend on config
-set(COMPONENT_REQUIRES mcommon mwifi mdebug)
-
-register_component()
+idf_component_register(SRCS "./sdcard.c"
+                    INCLUDE_DIRS "." "./include"
+                    PRIV_INCLUDE_DIRS "./utils"
+                    REQUIRES mcommon mwifi mdebug
+)

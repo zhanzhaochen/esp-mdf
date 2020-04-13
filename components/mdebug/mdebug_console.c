@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "rom/uart.h"
+#include "esp32/rom/uart.h"
 
 #include "esp_console.h"
 #include "esp_vfs_dev.h"

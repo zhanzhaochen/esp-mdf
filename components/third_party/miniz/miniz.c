@@ -36,12 +36,15 @@ extern "C" {
 
 /* ------------------- zlib-style API's */
 
-mz_ulong mz_adler32(mz_ulong adler, const unsigned char* ptr, size_t buf_len)
+mz_ulong mz_adler32(mz_ulong adler, const unsigned char *ptr, size_t buf_len)
 {
     mz_uint32 i, s1 = (mz_uint32)(adler & 0xffff), s2 = (mz_uint32)(adler >> 16);
     size_t block_len = buf_len % 5552;
-    if (!ptr)
+
+    if (!ptr) {
         return MZ_ADLER32_INIT;
+    }
+
     while (buf_len) {
         for (i = 0; i + 7 < block_len; i += 8, ptr += 8) {
             s1 += ptr[0], s2 += s1;
@@ -53,37 +56,46 @@ mz_ulong mz_adler32(mz_ulong adler, const unsigned char* ptr, size_t buf_len)
             s1 += ptr[6], s2 += s1;
             s1 += ptr[7], s2 += s1;
         }
-        for (; i < block_len; ++i)
+
+        for (; i < block_len; ++i) {
             s1 += *ptr++, s2 += s1;
+        }
+
         s1 %= 65521U, s2 %= 65521U;
         buf_len -= block_len;
         block_len = 5552;
     }
+
     return (s2 << 16) + s1;
 }
 
 /* Karl Malbrain's compact CRC-32. See "A compact CCITT crc16 and crc32 C implementation that balances processor cache usage against speed": http://www.geocities.com/malbrain/ */
 #if 0
-    mz_ulong mz_crc32(mz_ulong crc, const mz_uint8 *ptr, size_t buf_len)
-    {
-        static const mz_uint32 s_crc32[16] = { 0, 0x1db71064, 0x3b6e20c8, 0x26d930ac, 0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-                                               0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c, 0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c };
-        mz_uint32 crcu32 = (mz_uint32)crc;
-        if (!ptr)
-            return MZ_CRC32_INIT;
-        crcu32 = ~crcu32;
-        while (buf_len--)
-        {
-            mz_uint8 b = *ptr++;
-            crcu32 = (crcu32 >> 4) ^ s_crc32[(crcu32 & 0xF) ^ (b & 0xF)];
-            crcu32 = (crcu32 >> 4) ^ s_crc32[(crcu32 & 0xF) ^ (b >> 4)];
-        }
-        return ~crcu32;
+mz_ulong mz_crc32(mz_ulong crc, const mz_uint8 *ptr, size_t buf_len)
+{
+    static const mz_uint32 s_crc32[16] = { 0, 0x1db71064, 0x3b6e20c8, 0x26d930ac, 0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+                                           0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c, 0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+                                         };
+    mz_uint32 crcu32 = (mz_uint32)crc;
+
+    if (!ptr) {
+        return MZ_CRC32_INIT;
     }
+
+    crcu32 = ~crcu32;
+
+    while (buf_len--) {
+        mz_uint8 b = *ptr++;
+        crcu32 = (crcu32 >> 4) ^ s_crc32[(crcu32 & 0xF) ^ (b & 0xF)];
+        crcu32 = (crcu32 >> 4) ^ s_crc32[(crcu32 & 0xF) ^ (b >> 4)];
+    }
+
+    return ~crcu32;
+}
 #else
 /* Faster, but larger CPU cache footprint.
  */
-mz_ulong mz_crc32(mz_ulong crc, const mz_uint8* ptr, size_t buf_len)
+mz_ulong mz_crc32(mz_ulong crc, const mz_uint8 *ptr, size_t buf_len)
 {
     static const mz_uint32 s_crc_table[256] = {
         0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535,
@@ -126,7 +138,7 @@ mz_ulong mz_crc32(mz_ulong crc, const mz_uint8* ptr, size_t buf_len)
     };
 
     mz_uint32 crc32 = (mz_uint32)crc ^ 0xFFFFFFFF;
-    const mz_uint8* pByte_buf = (const mz_uint8*)ptr;
+    const mz_uint8 *pByte_buf = (const mz_uint8 *)ptr;
 
     while (buf_len >= 4) {
         crc32 = (crc32 >> 8) ^ s_crc_table[(crc32 ^ pByte_buf[0]) & 0xFF];
@@ -147,28 +159,28 @@ mz_ulong mz_crc32(mz_ulong crc, const mz_uint8* ptr, size_t buf_len)
 }
 #endif
 
-void mz_free(void* p)
+void mz_free(void *p)
 {
     MZ_FREE(p);
 }
 
-void* miniz_def_alloc_func(void* opaque, size_t items, size_t size)
+void *miniz_def_alloc_func(void *opaque, size_t items, size_t size)
 {
     (void)opaque, (void)items, (void)size;
     return MZ_MALLOC(items * size);
 }
-void miniz_def_free_func(void* opaque, void* address)
+void miniz_def_free_func(void *opaque, void *address)
 {
     (void)opaque, (void)address;
     MZ_FREE(address);
 }
-void* miniz_def_realloc_func(void* opaque, void* address, size_t items, size_t size)
+void *miniz_def_realloc_func(void *opaque, void *address, size_t items, size_t size)
 {
     (void)opaque, (void)address, (void)items, (void)size;
     return MZ_REALLOC(address, items * size);
 }
 
-const char* mz_version(void)
+const char *mz_version(void)
 {
     return MZ_VERSION;
 }
@@ -182,13 +194,16 @@ int mz_deflateInit(mz_streamp pStream, int level)
 
 int mz_deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy)
 {
-    tdefl_compressor* pComp;
+    tdefl_compressor *pComp;
     mz_uint comp_flags = TDEFL_COMPUTE_ADLER32 | tdefl_create_comp_flags_from_zip_params(level, window_bits, strategy);
 
-    if (!pStream)
+    if (!pStream) {
         return MZ_STREAM_ERROR;
-    if ((method != MZ_DEFLATED) || ((mem_level < 1) || (mem_level > 9)) || ((window_bits != MZ_DEFAULT_WINDOW_BITS) && (-window_bits != MZ_DEFAULT_WINDOW_BITS)))
+    }
+
+    if ((method != MZ_DEFLATED) || ((mem_level < 1) || (mem_level > 9)) || ((window_bits != MZ_DEFAULT_WINDOW_BITS) && (-window_bits != MZ_DEFAULT_WINDOW_BITS))) {
         return MZ_PARAM_ERROR;
+    }
 
     pStream->data_type = 0;
     pStream->adler = MZ_ADLER32_INIT;
@@ -196,44 +211,54 @@ int mz_deflateInit2(mz_streamp pStream, int level, int method, int window_bits, 
     pStream->reserved = 0;
     pStream->total_in = 0;
     pStream->total_out = 0;
-    if (!pStream->zalloc)
-        pStream->zalloc = miniz_def_alloc_func;
-    if (!pStream->zfree)
-        pStream->zfree = miniz_def_free_func;
 
-    pComp = (tdefl_compressor*)pStream->zalloc(pStream->opaque, 1, sizeof(tdefl_compressor));
+    if (!pStream->zalloc) {
+        pStream->zalloc = miniz_def_alloc_func;
+    }
+
+    if (!pStream->zfree) {
+        pStream->zfree = miniz_def_free_func;
+    }
+
+    pComp = (tdefl_compressor *)pStream->zalloc(pStream->opaque, 1, sizeof(tdefl_compressor));
 #ifdef CONFIG_MINIZ_SPLIT_TDEFL_COMPRESSOR
     pComp->m_dict = pComp->m_lz_code_buf = NULL;
     pComp->m_next = pComp->m_hash = NULL;
     pComp->m_output_buf = NULL;
+
     for (mz_uint8 i = 0; i < TDEFL_MAX_HUFF_TABLES; i++) {
         pComp->m_huff_codes[i] = NULL;
         pComp->m_huff_count[i] = NULL;
         pComp->m_huff_code_sizes[i] = NULL;
     }
-    pComp->m_dict = (mz_uint8*)MZ_MALLOC(sizeof(mz_uint8) * (TDEFL_LZ_DICT_SIZE + TDEFL_MAX_MATCH_LEN - 1));
+
+    pComp->m_dict = (mz_uint8 *)MZ_MALLOC(sizeof(mz_uint8) * (TDEFL_LZ_DICT_SIZE + TDEFL_MAX_MATCH_LEN - 1));
     MINIZ_ERROR_GOTO(pComp->m_dict, mem_error);
+
     for (mz_uint8 i = 0; i < TDEFL_MAX_HUFF_TABLES; i++) {
-        pComp->m_huff_count[i] = (mz_uint16*)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_MAX_HUFF_SYMBOLS);
+        pComp->m_huff_count[i] = (mz_uint16 *)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_MAX_HUFF_SYMBOLS);
         MINIZ_ERROR_GOTO(pComp->m_huff_count[i], mem_error);
-        pComp->m_huff_codes[i] = (mz_uint16*)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_MAX_HUFF_SYMBOLS);
+        pComp->m_huff_codes[i] = (mz_uint16 *)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_MAX_HUFF_SYMBOLS);
         MINIZ_ERROR_GOTO(pComp->m_huff_codes[i], mem_error);
-        pComp->m_huff_code_sizes[i] = (mz_uint8*)MZ_MALLOC(sizeof(mz_uint8) * TDEFL_MAX_HUFF_SYMBOLS);
+        pComp->m_huff_code_sizes[i] = (mz_uint8 *)MZ_MALLOC(sizeof(mz_uint8) * TDEFL_MAX_HUFF_SYMBOLS);
         MINIZ_ERROR_GOTO(pComp->m_huff_code_sizes[i], mem_error);
     }
-    pComp->m_lz_code_buf = (mz_uint8*)MZ_MALLOC(sizeof(mz_uint8) * TDEFL_LZ_CODE_BUF_SIZE);
+
+    pComp->m_lz_code_buf = (mz_uint8 *)MZ_MALLOC(sizeof(mz_uint8) * TDEFL_LZ_CODE_BUF_SIZE);
     MINIZ_ERROR_GOTO(pComp->m_lz_code_buf, mem_error);
-    pComp->m_next = (mz_uint16*)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_LZ_DICT_SIZE);
+    pComp->m_next = (mz_uint16 *)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_LZ_DICT_SIZE);
     MINIZ_ERROR_GOTO(pComp->m_next, mem_error);
-    pComp->m_hash = (mz_uint16*)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_LZ_HASH_SIZE);
+    pComp->m_hash = (mz_uint16 *)MZ_MALLOC(sizeof(mz_uint16) * TDEFL_LZ_HASH_SIZE);
     MINIZ_ERROR_GOTO(pComp->m_hash, mem_error);
-    pComp->m_output_buf = (mz_uint8*)MZ_MALLOC(sizeof(mz_uint8) * TDEFL_OUT_BUF_SIZE);
+    pComp->m_output_buf = (mz_uint8 *)MZ_MALLOC(sizeof(mz_uint8) * TDEFL_OUT_BUF_SIZE);
     MINIZ_ERROR_GOTO(pComp->m_output_buf, mem_error);
 #endif
-    if (!pComp)
-        return MZ_MEM_ERROR;
 
-    pStream->state = (struct mz_internal_state*)pComp;
+    if (!pComp) {
+        return MZ_MEM_ERROR;
+    }
+
+    pStream->state = (struct mz_internal_state *)pComp;
 
     if (tdefl_init(pComp, NULL, NULL, comp_flags) != TDEFL_STATUS_OKAY) {
         mz_deflateEnd(pStream);
@@ -244,11 +269,13 @@ int mz_deflateInit2(mz_streamp pStream, int level, int method, int window_bits, 
 #ifdef CONFIG_MINIZ_SPLIT_TDEFL_COMPRESSOR
 mem_error:
     MZ_FREE(pComp->m_dict);
+
     for (mz_uint8 i = 0; i < TDEFL_MAX_HUFF_TABLES; i++) {
         MZ_FREE(pComp->m_huff_count[i]);
         MZ_FREE(pComp->m_huff_codes[i]);
         MZ_FREE(pComp->m_huff_code_sizes[i]);
     }
+
     MZ_FREE(pComp->m_lz_code_buf);
     MZ_FREE(pComp->m_next);
     MZ_FREE(pComp->m_hash);
@@ -259,10 +286,12 @@ mem_error:
 
 int mz_deflateReset(mz_streamp pStream)
 {
-    if ((!pStream) || (!pStream->state) || (!pStream->zalloc) || (!pStream->zfree))
+    if ((!pStream) || (!pStream->state) || (!pStream->zalloc) || (!pStream->zfree)) {
         return MZ_STREAM_ERROR;
+    }
+
     pStream->total_in = pStream->total_out = 0;
-    tdefl_init((tdefl_compressor*)pStream->state, NULL, NULL, ((tdefl_compressor*)pStream->state)->m_flags);
+    tdefl_init((tdefl_compressor *)pStream->state, NULL, NULL, ((tdefl_compressor *)pStream->state)->m_flags);
     return MZ_OK;
 }
 
@@ -272,29 +301,35 @@ int mz_deflate(mz_streamp pStream, int flush)
     mz_ulong orig_total_in, orig_total_out;
     int mz_status = MZ_OK;
 
-    if ((!pStream) || (!pStream->state) || (flush < 0) || (flush > MZ_FINISH) || (!pStream->next_out))
+    if ((!pStream) || (!pStream->state) || (flush < 0) || (flush > MZ_FINISH) || (!pStream->next_out)) {
         return MZ_STREAM_ERROR;
-    if (!pStream->avail_out)
+    }
+
+    if (!pStream->avail_out) {
         return MZ_BUF_ERROR;
+    }
 
-    if (flush == MZ_PARTIAL_FLUSH)
+    if (flush == MZ_PARTIAL_FLUSH) {
         flush = MZ_SYNC_FLUSH;
+    }
 
-    if (((tdefl_compressor*)pStream->state)->m_prev_return_status == TDEFL_STATUS_DONE)
+    if (((tdefl_compressor *)pStream->state)->m_prev_return_status == TDEFL_STATUS_DONE) {
         return (flush == MZ_FINISH) ? MZ_STREAM_END : MZ_BUF_ERROR;
+    }
 
     orig_total_in = pStream->total_in;
     orig_total_out = pStream->total_out;
+
     for (;;) {
         tdefl_status defl_status;
         in_bytes = pStream->avail_in;
         out_bytes = pStream->avail_out;
 
-        defl_status = tdefl_compress((tdefl_compressor*)pStream->state, pStream->next_in, &in_bytes, pStream->next_out, &out_bytes, (tdefl_flush)flush);
+        defl_status = tdefl_compress((tdefl_compressor *)pStream->state, pStream->next_in, &in_bytes, pStream->next_out, &out_bytes, (tdefl_flush)flush);
         pStream->next_in += (mz_uint)in_bytes;
         pStream->avail_in -= (mz_uint)in_bytes;
         pStream->total_in += (mz_uint)in_bytes;
-        pStream->adler = tdefl_get_adler32((tdefl_compressor*)pStream->state);
+        pStream->adler = tdefl_get_adler32((tdefl_compressor *)pStream->state);
 
         pStream->next_out += (mz_uint)out_bytes;
         pStream->avail_out -= (mz_uint)out_bytes;
@@ -306,32 +341,39 @@ int mz_deflate(mz_streamp pStream, int flush)
         } else if (defl_status == TDEFL_STATUS_DONE) {
             mz_status = MZ_STREAM_END;
             break;
-        } else if (!pStream->avail_out)
+        } else if (!pStream->avail_out) {
             break;
-        else if ((!pStream->avail_in) && (flush != MZ_FINISH)) {
-            if ((flush) || (pStream->total_in != orig_total_in) || (pStream->total_out != orig_total_out))
+        } else if ((!pStream->avail_in) && (flush != MZ_FINISH)) {
+            if ((flush) || (pStream->total_in != orig_total_in) || (pStream->total_out != orig_total_out)) {
                 break;
+            }
+
             return MZ_BUF_ERROR; /* Can't make forward progress without some input.
  */
         }
     }
+
     return mz_status;
 }
 
 int mz_deflateEnd(mz_streamp pStream)
 {
-    if (!pStream)
+    if (!pStream) {
         return MZ_STREAM_ERROR;
+    }
+
     if (pStream->state) {
 #ifdef CONFIG_MINIZ_SPLIT_TDEFL_COMPRESSOR
-        tdefl_compressor* pComp;
-        pComp = (tdefl_compressor*)pStream->state;
+        tdefl_compressor *pComp;
+        pComp = (tdefl_compressor *)pStream->state;
         MZ_FREE(pComp->m_dict);
+
         for (mz_uint8 i = 0; i < TDEFL_MAX_HUFF_TABLES; i++) {
             MZ_FREE(pComp->m_huff_count[i]);
             MZ_FREE(pComp->m_huff_codes[i]);
             MZ_FREE(pComp->m_huff_code_sizes[i]);
         }
+
         MZ_FREE(pComp->m_lz_code_buf);
         MZ_FREE(pComp->m_next);
         MZ_FREE(pComp->m_hash);
@@ -340,6 +382,7 @@ int mz_deflateEnd(mz_streamp pStream)
         pStream->zfree(pStream->opaque, pStream->state);
         pStream->state = NULL;
     }
+
     return MZ_OK;
 }
 
@@ -350,26 +393,30 @@ mz_ulong mz_deflateBound(mz_streamp pStream, mz_ulong source_len)
     return MZ_MAX(128 + (source_len * 110) / 100, 128 + source_len + ((source_len / (31 * 1024)) + 1) * 5);
 }
 
-int mz_compress2(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len, int level)
+int mz_compress2(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len, int level)
 {
     int status;
     mz_stream stream;
     memset(&stream, 0, sizeof(stream));
 
     /* In case mz_ulong is 64-bits (argh I hate longs). */
-    if ((source_len | *pDest_len) > 0xFFFFFFFFU)
+    if ((source_len | *pDest_len) > 0xFFFFFFFFU) {
         return MZ_PARAM_ERROR;
+    }
 
     stream.next_in = pSource;
     stream.avail_in = (mz_uint32)source_len;
     stream.next_out = pDest;
-    stream.avail_out = (mz_uint32)*pDest_len;
+    stream.avail_out = (mz_uint32) * pDest_len;
 
     status = mz_deflateInit(&stream, level);
-    if (status != MZ_OK)
+
+    if (status != MZ_OK) {
         return status;
+    }
 
     status = mz_deflate(&stream, MZ_FINISH);
+
     if (status != MZ_STREAM_END) {
         mz_deflateEnd(&stream);
         return (status == MZ_OK) ? MZ_BUF_ERROR : status;
@@ -379,7 +426,7 @@ int mz_compress2(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char*
     return mz_deflateEnd(&stream);
 }
 
-int mz_compress(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len)
+int mz_compress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len)
 {
     return mz_compress2(pDest, pDest_len, pSource, source_len, MZ_DEFAULT_COMPRESSION);
 }
@@ -389,8 +436,7 @@ mz_ulong mz_compressBound(mz_ulong source_len)
     return mz_deflateBound(NULL, source_len);
 }
 
-typedef struct
-{
+typedef struct {
     tinfl_decompressor m_decomp;
     mz_uint m_dict_ofs, m_dict_avail, m_first_call, m_has_flushed;
     int m_window_bits;
@@ -400,11 +446,15 @@ typedef struct
 
 int mz_inflateInit2(mz_streamp pStream, int window_bits)
 {
-    inflate_state* pDecomp;
-    if (!pStream)
+    inflate_state *pDecomp;
+
+    if (!pStream) {
         return MZ_STREAM_ERROR;
-    if ((window_bits != MZ_DEFAULT_WINDOW_BITS) && (-window_bits != MZ_DEFAULT_WINDOW_BITS))
+    }
+
+    if ((window_bits != MZ_DEFAULT_WINDOW_BITS) && (-window_bits != MZ_DEFAULT_WINDOW_BITS)) {
         return MZ_PARAM_ERROR;
+    }
 
     pStream->data_type = 0;
     pStream->adler = 0;
@@ -412,35 +462,47 @@ int mz_inflateInit2(mz_streamp pStream, int window_bits)
     pStream->total_in = 0;
     pStream->total_out = 0;
     pStream->reserved = 0;
-    if (!pStream->zalloc)
-        pStream->zalloc = miniz_def_alloc_func;
-    if (!pStream->zfree)
-        pStream->zfree = miniz_def_free_func;
 
-    pDecomp = (inflate_state*)pStream->zalloc(pStream->opaque, 1, sizeof(inflate_state));
-    if (!pDecomp)
+    if (!pStream->zalloc) {
+        pStream->zalloc = miniz_def_alloc_func;
+    }
+
+    if (!pStream->zfree) {
+        pStream->zfree = miniz_def_free_func;
+    }
+
+    pDecomp = (inflate_state *)pStream->zalloc(pStream->opaque, 1, sizeof(inflate_state));
+
+    if (!pDecomp) {
         return MZ_MEM_ERROR;
+    }
+
 #ifdef CONFIG_MINIZ_SPLIT_TINFL_DECOMPRESSOR_TAG
+
     for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
         pDecomp->m_decomp.m_tables[i] = NULL;
     }
+
     for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
         pDecomp->m_decomp.m_tables[i] = MZ_MALLOC(sizeof(tinfl_huff_table));
         MINIZ_ERROR_GOTO(pDecomp->m_decomp.m_tables[i], mem_error1);
     }
+
     for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
         pDecomp->m_decomp.m_tables[i]->m_look_up = NULL;
         pDecomp->m_decomp.m_tables[i]->m_tree = NULL;
     }
+
     for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
-        pDecomp->m_decomp.m_tables[i]->m_look_up = (mz_int16*)MZ_MALLOC(sizeof(mz_int16) * TINFL_FAST_LOOKUP_SIZE);
+        pDecomp->m_decomp.m_tables[i]->m_look_up = (mz_int16 *)MZ_MALLOC(sizeof(mz_int16) * TINFL_FAST_LOOKUP_SIZE);
         MINIZ_ERROR_GOTO(pDecomp->m_decomp.m_tables[i]->m_look_up, mem_error2);
-        pDecomp->m_decomp.m_tables[i]->m_tree = (mz_int16*)MZ_MALLOC(sizeof(mz_int16) * TINFL_MAX_HUFF_SYMBOLS_0 * 2);
+        pDecomp->m_decomp.m_tables[i]->m_tree = (mz_int16 *)MZ_MALLOC(sizeof(mz_int16) * TINFL_MAX_HUFF_SYMBOLS_0 * 2);
         MINIZ_ERROR_GOTO(pDecomp->m_decomp.m_tables[i]->m_tree, mem_error2);
     }
+
 #endif
 
-    pStream->state = (struct mz_internal_state*)pDecomp;
+    pStream->state = (struct mz_internal_state *)pDecomp;
 
     tinfl_init(&pDecomp->m_decomp);
     pDecomp->m_dict_ofs = 0;
@@ -453,16 +515,20 @@ int mz_inflateInit2(mz_streamp pStream, int window_bits)
     return MZ_OK;
 #ifdef CONFIG_MINIZ_SPLIT_TINFL_DECOMPRESSOR_TAG
 mem_error1:
+
     for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
         MZ_FREE(pDecomp->m_decomp.m_tables[i]);
     }
+
     return MZ_MEM_ERROR;
 mem_error2:
-        for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
-            MZ_FREE(pDecomp->m_decomp.m_tables[i]->m_look_up);
-            MZ_FREE(pDecomp->m_decomp.m_tables[i]->m_tree);
-            MZ_FREE(pDecomp->m_decomp.m_tables[i]);
-        }
+
+    for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
+        MZ_FREE(pDecomp->m_decomp.m_tables[i]->m_look_up);
+        MZ_FREE(pDecomp->m_decomp.m_tables[i]->m_tree);
+        MZ_FREE(pDecomp->m_decomp.m_tables[i]);
+    }
+
     return MZ_MEM_ERROR;
 #endif
 }
@@ -474,9 +540,11 @@ int mz_inflateInit(mz_streamp pStream)
 
 int mz_inflateReset(mz_streamp pStream)
 {
-    inflate_state* pDecomp;
-    if (!pStream)
+    inflate_state *pDecomp;
+
+    if (!pStream) {
         return MZ_STREAM_ERROR;
+    }
 
     pStream->data_type = 0;
     pStream->adler = 0;
@@ -485,7 +553,7 @@ int mz_inflateReset(mz_streamp pStream)
     pStream->total_out = 0;
     pStream->reserved = 0;
 
-    pDecomp = (inflate_state*)pStream->state;
+    pDecomp = (inflate_state *)pStream->state;
 
     tinfl_init(&pDecomp->m_decomp);
     pDecomp->m_dict_ofs = 0;
@@ -500,30 +568,42 @@ int mz_inflateReset(mz_streamp pStream)
 
 int mz_inflate(mz_streamp pStream, int flush)
 {
-    inflate_state* pState;
+    inflate_state *pState;
     mz_uint n, first_call, decomp_flags = TINFL_FLAG_COMPUTE_ADLER32;
     size_t in_bytes, out_bytes, orig_avail_in;
     tinfl_status status;
 
-    if ((!pStream) || (!pStream->state))
+    if ((!pStream) || (!pStream->state)) {
         return MZ_STREAM_ERROR;
-    if (flush == MZ_PARTIAL_FLUSH)
-        flush = MZ_SYNC_FLUSH;
-    if ((flush) && (flush != MZ_SYNC_FLUSH) && (flush != MZ_FINISH))
-        return MZ_STREAM_ERROR;
+    }
 
-    pState = (inflate_state*)pStream->state;
-    if (pState->m_window_bits > 0)
+    if (flush == MZ_PARTIAL_FLUSH) {
+        flush = MZ_SYNC_FLUSH;
+    }
+
+    if ((flush) && (flush != MZ_SYNC_FLUSH) && (flush != MZ_FINISH)) {
+        return MZ_STREAM_ERROR;
+    }
+
+    pState = (inflate_state *)pStream->state;
+
+    if (pState->m_window_bits > 0) {
         decomp_flags |= TINFL_FLAG_PARSE_ZLIB_HEADER;
+    }
+
     orig_avail_in = pStream->avail_in;
 
     first_call = pState->m_first_call;
     pState->m_first_call = 0;
-    if (pState->m_last_status < 0)
-        return MZ_DATA_ERROR;
 
-    if (pState->m_has_flushed && (flush != MZ_FINISH))
+    if (pState->m_last_status < 0) {
+        return MZ_DATA_ERROR;
+    }
+
+    if (pState->m_has_flushed && (flush != MZ_FINISH)) {
         return MZ_STREAM_ERROR;
+    }
+
     pState->m_has_flushed |= (flush == MZ_FINISH);
 
     if ((flush == MZ_FINISH) && (first_call)) {
@@ -541,17 +621,20 @@ int mz_inflate(mz_streamp pStream, int flush)
         pStream->avail_out -= (mz_uint)out_bytes;
         pStream->total_out += (mz_uint)out_bytes;
 
-        if (status < 0)
+        if (status < 0) {
             return MZ_DATA_ERROR;
-        else if (status != TINFL_STATUS_DONE) {
+        } else if (status != TINFL_STATUS_DONE) {
             pState->m_last_status = TINFL_STATUS_FAILED;
             return MZ_BUF_ERROR;
         }
+
         return MZ_STREAM_END;
     }
+
     /* flush != MZ_FINISH then we must assume there's more input. */
-    if (flush != MZ_FINISH)
+    if (flush != MZ_FINISH) {
         decomp_flags |= TINFL_FLAG_HAS_MORE_INPUT;
+    }
 
     if (pState->m_dict_avail) {
         n = MZ_MIN(pState->m_dict_avail, pStream->avail_out);
@@ -586,19 +669,22 @@ int mz_inflate(mz_streamp pStream, int flush)
         pState->m_dict_avail -= n;
         pState->m_dict_ofs = (pState->m_dict_ofs + n) & (TINFL_LZ_DICT_SIZE - 1);
 
-        if (status < 0)
-            return MZ_DATA_ERROR; /* Stream is corrupted (there could be some uncompressed data left in the output dictionary - oh well). */
-        else if ((status == TINFL_STATUS_NEEDS_MORE_INPUT) && (!orig_avail_in))
-            return MZ_BUF_ERROR; /* Signal caller that we can't make forward progress without supplying more input or by setting flush to MZ_FINISH. */
-        else if (flush == MZ_FINISH) {
+        if (status < 0) {
+            return MZ_DATA_ERROR;    /* Stream is corrupted (there could be some uncompressed data left in the output dictionary - oh well). */
+        } else if ((status == TINFL_STATUS_NEEDS_MORE_INPUT) && (!orig_avail_in)) {
+            return MZ_BUF_ERROR;    /* Signal caller that we can't make forward progress without supplying more input or by setting flush to MZ_FINISH. */
+        } else if (flush == MZ_FINISH) {
             /* The output buffer MUST be large to hold the remaining uncompressed data when flush==MZ_FINISH. */
-            if (status == TINFL_STATUS_DONE)
+            if (status == TINFL_STATUS_DONE) {
                 return pState->m_dict_avail ? MZ_BUF_ERROR : MZ_STREAM_END;
+            }
             /* status here must be TINFL_STATUS_HAS_MORE_OUTPUT, which means there's at least 1 more byte on the way. If there's no more room left in the output buffer then something is wrong. */
-            else if (!pStream->avail_out)
+            else if (!pStream->avail_out) {
                 return MZ_BUF_ERROR;
-        } else if ((status == TINFL_STATUS_DONE) || (!pStream->avail_in) || (!pStream->avail_out) || (pState->m_dict_avail))
+            }
+        } else if ((status == TINFL_STATUS_DONE) || (!pStream->avail_in) || (!pStream->avail_out) || (pState->m_dict_avail)) {
             break;
+        }
     }
 
     return ((status == TINFL_STATUS_DONE) && (!pState->m_dict_avail)) ? MZ_STREAM_END : MZ_OK;
@@ -606,65 +692,77 @@ int mz_inflate(mz_streamp pStream, int flush)
 
 int mz_inflateEnd(mz_streamp pStream)
 {
-    if (!pStream)
+    if (!pStream) {
         return MZ_STREAM_ERROR;
+    }
+
     if (pStream->state) {
 #ifdef CONFIG_MINIZ_SPLIT_TINFL_DECOMPRESSOR_TAG
-        inflate_state* pDecomp = (inflate_state*)(pStream->state);
+        inflate_state *pDecomp = (inflate_state *)(pStream->state);
+
         for (mz_uint8 i = 0; i < TINFL_MAX_HUFF_TABLES; i++) {
             MZ_FREE(pDecomp->m_decomp.m_tables[i]->m_look_up);
             MZ_FREE(pDecomp->m_decomp.m_tables[i]->m_tree);
             MZ_FREE(pDecomp->m_decomp.m_tables[i]);
         }
+
 #endif
         pStream->zfree(pStream->opaque, pStream->state);
         pStream->state = NULL;
     }
+
     return MZ_OK;
 }
 
-int mz_uncompress(unsigned char* pDest, mz_ulong* pDest_len, const unsigned char* pSource, mz_ulong source_len)
+int mz_uncompress(unsigned char *pDest, mz_ulong *pDest_len, const unsigned char *pSource, mz_ulong source_len)
 {
     mz_stream stream;
     int status;
     memset(&stream, 0, sizeof(stream));
 
     /* In case mz_ulong is 64-bits (argh I hate longs). */
-    if ((source_len | *pDest_len) > 0xFFFFFFFFU)
+    if ((source_len | *pDest_len) > 0xFFFFFFFFU) {
         return MZ_PARAM_ERROR;
+    }
 
     stream.next_in = pSource;
     stream.avail_in = (mz_uint32)source_len;
     stream.next_out = pDest;
-    stream.avail_out = (mz_uint32)*pDest_len;
+    stream.avail_out = (mz_uint32) * pDest_len;
 
     status = mz_inflateInit(&stream);
-    if (status != MZ_OK)
+
+    if (status != MZ_OK) {
         return status;
+    }
 
     status = mz_inflate(&stream, MZ_FINISH);
+
     if (status != MZ_STREAM_END) {
         mz_inflateEnd(&stream);
         return ((status == MZ_BUF_ERROR) && (!stream.avail_in)) ? MZ_DATA_ERROR : status;
     }
+
     *pDest_len = stream.total_out;
 
     return mz_inflateEnd(&stream);
 }
 
-const char* mz_error(int err)
+const char *mz_error(int err)
 {
-    static struct
-    {
+    static struct {
         int m_err;
-        const char* m_pDesc;
+        const char *m_pDesc;
     } s_error_descs[] = {
         { MZ_OK, "" }, { MZ_STREAM_END, "stream end" }, { MZ_NEED_DICT, "need dictionary" }, { MZ_ERRNO, "file error" }, { MZ_STREAM_ERROR, "stream error" }, { MZ_DATA_ERROR, "data error" }, { MZ_MEM_ERROR, "out of memory" }, { MZ_BUF_ERROR, "buf error" }, { MZ_VERSION_ERROR, "version error" }, { MZ_PARAM_ERROR, "parameter error" }
     };
     mz_uint i;
+
     for (i = 0; i < sizeof(s_error_descs) / sizeof(s_error_descs[0]); ++i)
-        if (s_error_descs[i].m_err == err)
+        if (s_error_descs[i].m_err == err) {
             return s_error_descs[i].m_pDesc;
+        }
+
     return NULL;
 }
 

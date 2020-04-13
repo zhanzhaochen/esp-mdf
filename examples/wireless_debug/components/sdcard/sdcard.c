@@ -22,7 +22,8 @@
 #include "driver/sdspi_host.h"
 #include "sdmmc_cmd.h"
 #include "sys/dirent.h"
-#include "wpa2/utils/base64.h"
+#include "base64.h"
+#include "soc/soc_memory_layout.h"
 
 #include "mdf_common.h"
 #include "sdcard.h"
@@ -30,7 +31,7 @@
 static const char *TAG = "sdcard";
 
 #define SDCARD_BASE_PATH "/sdcard"
-#define SDCARD_FILE_NAME_MAX_LEN 64
+#define SDCARD_FILE_NAME_MAX_LEN 256
 
 static bool g_is_mount_flag = false;
 
@@ -73,7 +74,7 @@ mdf_err_t sdcard_init()
 esp_err_t sdcard_remove_file(const char *file_name)
 {
     struct stat st = { 0 };
-    char file_path[SDCARD_FILE_NAME_MAX_LEN] = {0};
+    char file_path[SDCARD_FILE_NAME_MAX_LEN + 8] = {0};
     sprintf(file_path, SDCARD_BASE_PATH "/%s", file_name);
 
     if (stat(file_path, &st) == MDF_OK) {
@@ -127,7 +128,7 @@ esp_err_t sdcard_list_file(const char *file_name)
 {
     struct dirent *entry = NULL;
     struct stat f_stat = { 0 };
-    char file_path[SDCARD_FILE_NAME_MAX_LEN] = {0};
+    char file_path[SDCARD_FILE_NAME_MAX_LEN + 8] = {0};
 
     DIR *dirptr = opendir(SDCARD_BASE_PATH);
     MDF_ERROR_CHECK(dirptr == NULL, MDF_FAIL, "opendir failed");

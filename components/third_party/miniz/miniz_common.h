@@ -52,31 +52,31 @@ typedef struct mz_dummy_time_t_tag {
 #else
 // #define MZ_MALLOC(x) malloc(x)
 #define MZ_MALLOC(x) ({                                                         \
-    void* p = malloc(x);                                                        \
-    if (p == NULL)                                                              \
-        printf("%s: %u malloc size %zu bytes failed\n", __FILE__, __LINE__, x); \
-    p;                                                                          \
-})
+        void* p = malloc(x);                                                        \
+        if (p == NULL)                                                              \
+            printf("%s: %u malloc size %zu bytes failed\n", __FILE__, __LINE__, x); \
+        p;                                                                          \
+    })
 #ifdef CONFIG_MINIZ_MINIMIZE_STACK_CONSUME
 #define MZ_MALLOC_RETRY(x) ({                                                                \
-    void* p;                                                                                 \
-    while (1) {                                                                              \
-        p = malloc(x);                                                                       \
-        if (p != NULL)                                                                       \
-            break;                                                                           \
-        printf("%s: %u malloc size %zu bytes failed, retry later\n", __FILE__, __LINE__, x); \
-        vTaskDelay(pdMS_TO_TICKS(100));                                                      \
-    }                                                                                        \
-    p;                                                                                       \
-})
+        void* p;                                                                                 \
+        while (1) {                                                                              \
+            p = malloc(x);                                                                       \
+            if (p != NULL)                                                                       \
+                break;                                                                           \
+            printf("%s: %u malloc size %zu bytes failed, retry later\n", __FILE__, __LINE__, x); \
+            vTaskDelay(pdMS_TO_TICKS(100));                                                      \
+        }                                                                                        \
+        p;                                                                                       \
+    })
 #endif
 // #define MZ_FREE(x) free(x)
 #define MZ_FREE(x) ({ \
-    if (x != NULL) {  \
-        free(x);      \
-        x = NULL;     \
-    }                 \
-})
+        if (x != NULL) {  \
+            free(x);      \
+            x = NULL;     \
+        }                 \
+    })
 #define MZ_REALLOC(p, x) realloc(p, x)
 #endif
 
@@ -106,9 +106,9 @@ typedef struct mz_dummy_time_t_tag {
 extern "C" {
 #endif
 
-extern void* miniz_def_alloc_func(void* opaque, size_t items, size_t size);
-extern void miniz_def_free_func(void* opaque, void* address);
-extern void* miniz_def_realloc_func(void* opaque, void* address, size_t items, size_t size);
+extern void *miniz_def_alloc_func(void *opaque, size_t items, size_t size);
+extern void miniz_def_free_func(void *opaque, void *address);
+extern void *miniz_def_realloc_func(void *opaque, void *address, size_t items, size_t size);
 
 #define MZ_UINT16_MAX (0xFFFFU)
 #define MZ_UINT32_MAX (0xFFFFFFFFU)

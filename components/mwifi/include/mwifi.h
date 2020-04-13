@@ -34,9 +34,9 @@ extern "C" {
 #define MWIFI_ADDR_IS_ANY(addr)   (((addr)[0] & (addr)[1] & (addr)[2] & (addr)[3] & (addr)[4] & (addr)[5]) == 0xFF)
 #define MWIFI_ADDR_IS_BROADCAST(addr) (((addr)[0] & (addr)[1] & (addr)[2] & (addr)[3] & (addr)[4]) == 0xFF && (addr)[5] == 0xFE)
 
-/**
- * @brief Mwifi error code definition
- */
+    /**
+     * @brief Mwifi error code definition
+     */
 #define MDF_ERR_MWIFI_NOT_INIT                  (MDF_ERR_MWIFI_BASE + 1)  /**< Mwifi isn't initialized */
 #define MDF_ERR_MWIFI_INITED                    (MDF_ERR_MWIFI_BASE + 2)  /**< Mwifi has been initialized */
 #define MDF_ERR_MWIFI_NOT_START                 (MDF_ERR_MWIFI_BASE + 3)  /**< Mwifi isn't started */
@@ -48,9 +48,9 @@ extern "C" {
 #define MDF_ERR_MWIFI_NO_FOUND                  (MDF_ERR_MWIFI_BASE + 9)  /**< Routes or devices not found */
 #define MDF_ERR_MWIFI_NO_ROOT                   (MDF_ERR_MWIFI_BASE + 10)  /**< Routes or devices not found */
 
-/**
- * @brief enumerated list of Mwifi event id
- */
+    /**
+     * @brief enumerated list of Mwifi event id
+     */
 #define MDF_EVENT_MWIFI_STARTED                 (MESH_EVENT_STARTED)            /**< Mwifi is started */
 #define MDF_EVENT_MWIFI_STOPPED                 (MESH_EVENT_STOPPED)            /**< Mwifi is stopped */
 #define MDF_EVENT_MWIFI_CHANNEL_SWITCH          (MESH_EVENT_CHANNEL_SWITCH)     /**< Channel switch */
@@ -68,8 +68,8 @@ extern "C" {
 #define MDF_EVENT_MWIFI_ROOT_ADDRESS            (MESH_EVENT_ROOT_ADDRESS)       /**< The root address is obtained. It is posted by Mwifi stack automatically. */
 #define MDF_EVENT_MWIFI_ROOT_SWITCH_REQ         (MESH_EVENT_ROOT_SWITCH_REQ)    /**< Root switch request sent from a new voted root candidate */
 #define MDF_EVENT_MWIFI_ROOT_SWITCH_ACK         (MESH_EVENT_ROOT_SWITCH_ACK)    /**< Root switch acknowledgment responds the above request sent from current root */
-#define MDF_EVENT_MWIFI_ROOT_GOT_IP             (MESH_EVENT_ROOT_GOT_IP)        /**< Root obtains the IP address. It is posted by LwIP stack automatically */
-#define MDF_EVENT_MWIFI_ROOT_LOST_IP            (MESH_EVENT_ROOT_LOST_IP)       /**< Root loses the IP address. It is posted by LwIP stack automatically */
+// #define MDF_EVENT_MWIFI_ROOT_GOT_IP             (MESH_EVENT_ROOT_GOT_IP)        /**< Root obtains the IP address. It is posted by LwIP stack automatically */
+// #define MDF_EVENT_MWIFI_ROOT_LOST_IP            (MESH_EVENT_ROOT_LOST_IP)       /**< Root loses the IP address. It is posted by LwIP stack automatically */
 #define MDF_EVENT_MWIFI_ROOT_ASKED_YIELD        (MESH_EVENT_ROOT_ASKED_YIELD)   /**< Root is asked yield by a more powerful existing root. */
 
 #define MDF_EVENT_MWIFI_SCAN_DONE               (MESH_EVENT_SCAN_DONE)          /**< if self-organized networking is disabled */
@@ -82,52 +82,54 @@ extern "C" {
                                                                                      router with the same SSID, this event will be posted and the new router information is attached. */
 
 #define MDF_EVENT_MWIFI_CHANNEL_NO_FOUND        (64)                            /**< The router's channel is not set. */
+#define MDF_EVENT_MWIFI_ROOT_GOT_IP             (64+1)
+#define MDF_EVENT_MWIFI_ROOT_LOST_IP            (64+2)
 
-/**
- * @brief  Mwifi initialization configuration
- */
-typedef struct {
     /**
-     * @brief Mesh root configuration
+     * @brief  Mwifi initialization configuration
      */
-    uint8_t vote_percentage;    /**< Vote percentage threshold above which the node becoms a root */
-    uint8_t vote_max_count;     /**< Max multiple voting each device can have for the self-healing of a MESH network */
-    int8_t backoff_rssi;        /**< RSSI threshold below which connections to the root node are not allowed */
-    uint8_t scan_min_count;     /**< Minimum scan times before being a root */
-    bool root_conflicts_enable; /**< Allow more than one root in one network */
-    uint16_t root_healing_ms;   /**< Time lag between the moment a root node is disconnected from the network and the moment
+    typedef struct {
+        /**
+         * @brief Mesh root configuration
+         */
+        uint8_t vote_percentage;    /**< Vote percentage threshold above which the node becoms a root */
+        uint8_t vote_max_count;     /**< Max multiple voting each device can have for the self-healing of a MESH network */
+        int8_t backoff_rssi;        /**< RSSI threshold below which connections to the root node are not allowed */
+        uint8_t scan_min_count;     /**< Minimum scan times before being a root */
+        bool root_conflicts_enable; /**< Allow more than one root in one network */
+        uint16_t root_healing_ms;   /**< Time lag between the moment a root node is disconnected from the network and the moment
                                      the devices start electing another root node  */
 
-    /**
-     * @brief Mesh network capacity configuration
-     */
-    uint16_t capacity_num;      /**< Network capacity, defining max number of devices allowed in the MESH network */
-    uint8_t max_layer;          /**< Max number of allowed layers */
-    uint8_t max_connection;     /**< Max number of MESH softAP connections */
+        /**
+         * @brief Mesh network capacity configuration
+         */
+        uint16_t capacity_num;      /**< Network capacity, defining max number of devices allowed in the MESH network */
+        uint8_t max_layer;          /**< Max number of allowed layers */
+        uint8_t max_connection;     /**< Max number of MESH softAP connections */
 
-    /**
-     * @brief Mesh network stability configuration
-     */
-    uint16_t assoc_expire_ms;   /**< Period of time after which a MESH softAP breaks its association with inactive leaf nodes */
-    uint16_t beacon_interval_ms;/**< Mesh softAP beacon interval */
-    uint16_t passive_scan_ms;   /**< Mesh station passive scan duration */
-    uint16_t monitor_duration_ms; /**<  Period (ms) for monitoring the parent's RSSI. If the signal stays weak throughout the
+        /**
+         * @brief Mesh network stability configuration
+         */
+        uint16_t assoc_expire_ms;   /**< Period of time after which a MESH softAP breaks its association with inactive leaf nodes */
+        uint16_t beacon_interval_ms;/**< Mesh softAP beacon interval */
+        uint16_t passive_scan_ms;   /**< Mesh station passive scan duration */
+        uint16_t monitor_duration_ms; /**<  Period (ms) for monitoring the parent's RSSI. If the signal stays weak throughout the
                                         period, the node will find another parent offering more stable connection */
-    int8_t cnx_rssi;            /**< RSSI threshold above which the connection with a parent is considered strong */
-    int8_t select_rssi;         /**< RSSI threshold for parent selection. Its value should be greater than switch_rssi */
-    int8_t switch_rssi;         /**< RSSI threshold below which a node selects a parent with better RSSI */
-    uint8_t attempt_count;      /**< Parent selection fail times, if the scan times reach this value,
+        int8_t cnx_rssi;            /**< RSSI threshold above which the connection with a parent is considered strong */
+        int8_t select_rssi;         /**< RSSI threshold for parent selection. Its value should be greater than switch_rssi */
+        int8_t switch_rssi;         /**< RSSI threshold below which a node selects a parent with better RSSI */
+        uint8_t attempt_count;      /**< Parent selection fail times, if the scan times reach this value,
                                      device will disconnect with associated children and join self-healing */
-    uint8_t monitor_ie_count;   /**< Allowed number of changes a parent node can introduce into its information element (IE),
+        uint8_t monitor_ie_count;   /**< Allowed number of changes a parent node can introduce into its information element (IE),
                                      before the leaf nodes must update their own IEs accordingly */
 
-    /**
-     * @brief Mesh network data transmission configuration
-     */
-    uint8_t xon_qsize;          /**< Number of MESH buffer queues */
-    bool retransmit_enable;     /**< Enable a source node to retransmit data to the node from which it failed to receive ACK */
-    bool data_drop_enable;      /**< If a root is changed, enable the new root to drop the previous packet */
-} mwifi_init_config_t;
+        /**
+         * @brief Mesh network data transmission configuration
+         */
+        uint8_t xon_qsize;          /**< Number of MESH buffer queues */
+        bool retransmit_enable;     /**< Enable a source node to retransmit data to the node from which it failed to receive ACK */
+        bool data_drop_enable;      /**< If a root is changed, enable the new root to drop the previous packet */
+    } mwifi_init_config_t;
 
 #ifndef CONFIG_MWIFI_ROOT_CONFLICTS_ENABLE
 #define CONFIG_MWIFI_ROOT_CONFLICTS_ENABLE false
@@ -161,94 +163,94 @@ typedef struct {
         /**< .data_drop_enable      =*/ CONFIG_MWIFI_DATA_DROP_ENABLE, \
     }
 
-/**
- * @brief Device type
- */
-typedef enum {
-    MWIFI_MESH_IDLE,    /**< hasn't joined the mesh network yet */
-    MWIFI_MESH_ROOT,    /**< the only sink of the mesh network. Has the ability to access external IP network */
-    MWIFI_MESH_NODE,    /**< intermediate device. Has the ability to forward packets over the mesh network */
-    MWIFI_MESH_LEAF,    /**< has no forwarding ability */
-} node_type_t;
-
-typedef uint8_t mwifi_node_type_t;
-
-/**
- * @brief Mwifi AP configuration
- */
-typedef struct {
     /**
-     * @brief  Information about the router connected to the root.
-     *         This item does not need to be set in the routerless scheme.
+     * @brief Device type
      */
-    char router_ssid[32];     /**< SSID of the router */
-    char router_password[64]; /**< Password of router */
-    uint8_t router_bssid[6];  /**< BSSID, if this value is specified, users should also specify "router_switch_disable" */
+    typedef enum {
+        MWIFI_MESH_IDLE,    /**< hasn't joined the mesh network yet */
+        MWIFI_MESH_ROOT,    /**< the only sink of the mesh network. Has the ability to access external IP network */
+        MWIFI_MESH_NODE,    /**< intermediate device. Has the ability to forward packets over the mesh network */
+        MWIFI_MESH_LEAF,    /**< has no forwarding ability */
+    } node_type_t;
+
+    typedef uint8_t mwifi_node_type_t;
 
     /**
-     * @brief  Information about the mesh internal connected.
+     * @brief Mwifi AP configuration
      */
-    uint8_t mesh_id[6];     /**< Mesh network ID. Nodes sharing the same MESH ID can communicate with one another */
-    char mesh_password[64]; /**< Password for secure communication between devices in a MESH network */
-    mwifi_node_type_t mesh_type;      /**< Only MWIFI_MESH_IDLE, MWIFI_MESH_ROOT, MWIFI_MESH_NODE and MWIFI_MESH_LEAF device types are supported.
+    typedef struct {
+        /**
+         * @brief  Information about the router connected to the root.
+         *         This item does not need to be set in the routerless scheme.
+         */
+        char router_ssid[32];     /**< SSID of the router */
+        char router_password[64]; /**< Password of router */
+        uint8_t router_bssid[6];  /**< BSSID, if this value is specified, users should also specify "router_switch_disable" */
+
+        /**
+         * @brief  Information about the mesh internal connected.
+         */
+        uint8_t mesh_id[6];     /**< Mesh network ID. Nodes sharing the same MESH ID can communicate with one another */
+        char mesh_password[64]; /**< Password for secure communication between devices in a MESH network */
+        mwifi_node_type_t mesh_type;      /**< Only MWIFI_MESH_IDLE, MWIFI_MESH_ROOT, MWIFI_MESH_NODE and MWIFI_MESH_LEAF device types are supported.
                                  Routerless solutions must be configured as MWIFI_MESH_ROOT or MWIFI_MESH_NODE
                                  MWIFI_MESH_IDLE: The node type is selected by MESH according to the network conditions.
                                  MWIFI_MESH_ROOT: The Device is the root node
                                  MWIFI_MESH_NODE: The device is a non-root node and contains intermediate nodes and leaf nodes.
                                  MWIFI_MESH_LEAF: The device is a leaf node, closes the softap, and is used in a low-power solutions.*/
 
-    uint8_t channel;        /**< Channel, mesh and router will be on the same channel */
-    uint8_t channel_switch_disable; /**< If this value is not set, when "attempt" (mwifi_init_config_t) times is reached, device will change to
+        uint8_t channel;        /**< Channel, mesh and router will be on the same channel */
+        uint8_t channel_switch_disable; /**< If this value is not set, when "attempt" (mwifi_init_config_t) times is reached, device will change to
                                          a full channel scan for a network that could join. */
-    uint8_t router_switch_disable;  /**< If the BSSID is specified and this value is not also set, when the router of this specified BSSID
+        uint8_t router_switch_disable;  /**< If the BSSID is specified and this value is not also set, when the router of this specified BSSID
                                          fails to be found after "attempt" (mwifi_init_config_t) times, the whole network is allowed to switch
                                          to another router with the same SSID. The new router might also be on a different channel.
                                          There is a risk that if the password is different between the new switched router and the previous
                                          one, the mesh network could be established but the root will never connect to the new switched router. */
-} mwifi_config_t;
+    } mwifi_config_t;
 
-/**
- * @brief Mesh network internal data transmission method.
- */
-enum mwifi_communication_method {
-    MWIFI_COMMUNICATE_UNICAST,   /**< Send data by unicast. */
-    MWIFI_COMMUNICATE_MULTICAST, /**< Send data by multicast. */
-    MWIFI_COMMUNICATE_BROADCAST, /**< Send data by broadcast. */
-};
+    /**
+     * @brief Mesh network internal data transmission method.
+     */
+    enum mwifi_communication_method {
+        MWIFI_COMMUNICATE_UNICAST,   /**< Send data by unicast. */
+        MWIFI_COMMUNICATE_MULTICAST, /**< Send data by multicast. */
+        MWIFI_COMMUNICATE_BROADCAST, /**< Send data by broadcast. */
+    };
 
-/**
- * @brief Mwifi packet type
- */
-typedef struct {
-    bool compression    : 1; /**< Enable data compression. If the data sent is json format or string,
+    /**
+     * @brief Mwifi packet type
+     */
+    typedef struct {
+        bool compression    : 1; /**< Enable data compression. If the data sent is json format or string,
                                  use data compression to increase the data transmission rate. */
-    bool upgrade        : 1; /**< Upgrade packet flag */
-    uint8_t communicate : 2; /**< Mesh data communication method, There are three types:
+        bool upgrade        : 1; /**< Upgrade packet flag */
+        uint8_t communicate : 2; /**< Mesh data communication method, There are three types:
                                   MWIFI_COMMUNICATE_UNICAST, MWIFI_COMMUNICATE_MULTICAST, MWIFI_COMMUNICATE_BROADCAST*/
-    bool group          : 1; /**< Send a package as a group */
-    uint8_t reserved    : 1; /**< reserved */
-    uint8_t protocol    : 2; /**< Type of transmitted application protocol */
-    uint32_t custom;         /**< Type of transmitted application data */
-} __attribute__((packed)) mwifi_data_type_t;
+        bool group          : 1; /**< Send a package as a group */
+        uint8_t reserved    : 1; /**< reserved */
+        uint8_t protocol    : 2; /**< Type of transmitted application protocol */
+        uint32_t custom;         /**< Type of transmitted application data */
+    } __attribute__((packed)) mwifi_data_type_t;
 
-/**
- * @brief Buffer space when reading data
- */
-typedef enum {
-    MWIFI_DATA_MEMORY_MALLOC_INTERNAL = 1,  /**< Buffer space is requested by internal when reading data */
-    MWIFI_DATA_MEMORY_MALLOC_EXTERNAL = 2,  /**< Buffer space is requested by external when reading data */
-} mwifi_data_memory_t;
+    /**
+     * @brief Buffer space when reading data
+     */
+    typedef enum {
+        MWIFI_DATA_MEMORY_MALLOC_INTERNAL = 1,  /**< Buffer space is requested by internal when reading data */
+        MWIFI_DATA_MEMORY_MALLOC_EXTERNAL = 2,  /**< Buffer space is requested by external when reading data */
+    } mwifi_data_memory_t;
 
-/**
- * @brief  Get mesh networking IE.
- *
- * @param  mesh_assoc pointer mesh networking IE.
- *
- * @return
- *    - ESP_OK
- *    - ESP_FAIL
- */
-esp_err_t esp_wifi_vnd_mesh_get(mesh_assoc_t *mesh_assoc);
+    /**
+     * @brief  Get mesh networking IE.
+     *
+     * @param  mesh_assoc pointer mesh networking IE.
+     *
+     * @return
+     *    - ESP_OK
+     *    - ESP_FAIL
+     */
+    esp_err_t esp_wifi_vnd_mesh_get(mesh_assoc_t *mesh_assoc);
 
 /**
  * @brief  Mwifi initialization
@@ -271,17 +273,17 @@ esp_err_t esp_wifi_vnd_mesh_get(mesh_assoc_t *mesh_assoc);
 mdf_err_t mwifi_init(const mwifi_init_config_t *config);
 
 
-/**
- * @brief  Deinit mwifi
- *         Free all resource allocated in mwifi_init and stop Mwifi task.
- *
- * @attention This API should be called if you want to remove Mwifi from the system.
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_INIT
- */
-mdf_err_t mwifi_deinit(void);
+    /**
+     * @brief  Deinit mwifi
+     *         Free all resource allocated in mwifi_init and stop Mwifi task.
+     *
+     * @attention This API should be called if you want to remove Mwifi from the system.
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_INIT
+     */
+    mdf_err_t mwifi_deinit(void);
 
 /**
  * @brief     Set Mwifi configuration
@@ -296,14 +298,14 @@ mdf_err_t mwifi_deinit(void);
  */
 mdf_err_t mwifi_set_init_config(const mwifi_init_config_t *init_config);
 
-/**
- * @brief  Get Mwifi init configuration.
- *
- * @param  init_config pointer to Mwifi init configuration.
- *
- * @return             [description]
- */
-mdf_err_t mwifi_get_init_config(mwifi_init_config_t *init_config);
+    /**
+     * @brief  Get Mwifi init configuration.
+     *
+     * @param  init_config pointer to Mwifi init configuration.
+     *
+     * @return             [description]
+     */
+    mdf_err_t mwifi_get_init_config(mwifi_init_config_t *init_config);
 
 /**
  * @brief  Set the configuration of the AP
@@ -318,121 +320,121 @@ mdf_err_t mwifi_get_init_config(mwifi_init_config_t *init_config);
  */
 mdf_err_t mwifi_set_config(const mwifi_config_t *config);
 
-/**
- * @brief  Get the configuration of the AP
- *
- * @param  config pointer to AP configuration
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_ARGUMENT
- */
-mdf_err_t mwifi_get_config(mwifi_config_t *config);
+    /**
+     * @brief  Get the configuration of the AP
+     *
+     * @param  config pointer to AP configuration
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_ARGUMENT
+     */
+    mdf_err_t mwifi_get_config(mwifi_config_t *config);
 
-/**
- * @brief  Start Mwifi according to current configuration
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_INIT
- */
-mdf_err_t mwifi_start(void);
+    /**
+     * @brief  Start Mwifi according to current configuration
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_INIT
+     */
+    mdf_err_t mwifi_start(void);
 
-/**
- * @brief  Stop mwifi
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_INIT
- */
-mdf_err_t mwifi_stop(void);
+    /**
+     * @brief  Stop mwifi
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_INIT
+     */
+    mdf_err_t mwifi_stop(void);
 
-/**
- * @brief  restart mwifi
- *
- * @attention This API should be called when the Mwifi configuration is modified.
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_INIT
- */
-mdf_err_t mwifi_restart();
+    /**
+     * @brief  restart mwifi
+     *
+     * @attention This API should be called when the Mwifi configuration is modified.
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_INIT
+     */
+    mdf_err_t mwifi_restart();
 
-/**
- * @brief  whether wifi_mesh is running
- *
- * @return
- *    - true
- *    - flase
- */
-bool mwifi_is_started(void);
+    /**
+     * @brief  whether wifi_mesh is running
+     *
+     * @return
+     *    - true
+     *    - flase
+     */
+    bool mwifi_is_started(void);
 
-/**
- * @brief  Whether the node is already connected to the parent node
- *
- * @return
- *    - true
- *    - flase
- */
-bool mwifi_is_connected(void);
+    /**
+     * @brief  Whether the node is already connected to the parent node
+     *
+     * @return
+     *    - true
+     *    - flase
+     */
+    bool mwifi_is_connected(void);
 
-/**
- * @brief  Print mesh configuration information
- */
-void mwifi_print_config();
+    /**
+     * @brief  Print mesh configuration information
+     */
+    void mwifi_print_config();
 
-/**
- * @brief  Send a packet to any node in the mesh network.
- *
- * @attention 1. If data encryption is enabled, you must ensure that the task that
- *               calls this function is greater than 4KB.
- *            2. When sending data to the root node, if the destination address
- *               is NULL, the root node receives it using mwifi_root_read(). If
- *               the destination address is the mac address of the root node or MWIFI_ADDR_ROOT, the
- *               root node receives it using mwifi_read()
- *
- * @param  dest_addrs The address of the final destination of the packet
- *                    If the packet is to the root and "dest_addr" parameter is NULL
- * @param  data_type  The type of the data
- *                    If the default configuration is used, this parameter is NULL
- * @param  data       Pointer to a sending wifi mesh packet
- * @param  size       The length of the data
- * @param  block      Whether to block waiting for data transmission results
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_START
- */
-mdf_err_t mwifi_write(const uint8_t *dest_addrs, const mwifi_data_type_t *data_type,
-                      const void *data, size_t size, bool block);
+    /**
+     * @brief  Send a packet to any node in the mesh network.
+     *
+     * @attention 1. If data encryption is enabled, you must ensure that the task that
+     *               calls this function is greater than 4KB.
+     *            2. When sending data to the root node, if the destination address
+     *               is NULL, the root node receives it using mwifi_root_read(). If
+     *               the destination address is the mac address of the root node or MWIFI_ADDR_ROOT, the
+     *               root node receives it using mwifi_read()
+     *
+     * @param  dest_addrs The address of the final destination of the packet
+     *                    If the packet is to the root and "dest_addr" parameter is NULL
+     * @param  data_type  The type of the data
+     *                    If the default configuration is used, this parameter is NULL
+     * @param  data       Pointer to a sending wifi mesh packet
+     * @param  size       The length of the data
+     * @param  block      Whether to block waiting for data transmission results
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_START
+     */
+    mdf_err_t mwifi_write(const uint8_t *dest_addrs, const mwifi_data_type_t *data_type,
+                          const void *data, size_t size, bool block);
 
-/**
- * @brief  Receive a packet targeted to self over the mesh network
- *
- * @attention Judging the allocation of buffers by the type of the parameter 'data'
- *            The memory of `data` is externally allocated, and the memory is larger than the total length expected to be received.
- *            The memory of `data` is allocated internally by `mwifi_read`, which needs to be released after the call.
- *
- *
- * @param  src_addr    The address of the original source of the packet
- * @param  data_type   The type of the data
- * @param  data        Pointer to the received mesh packet
- *                     To apply for buffer space externally, set the type of the data parameter to be (char *) or (uint8_t *)
- *                     To apply for buffer space internally, set the type of the data parameter to be (char **) or (uint8_t **)
- * @param  size        A non-zero pointer to the variable holding the length of out_value.
- *                     In case out_value is not zero, will be set to the actual length of the value written.
- * @param  wait_ticks  Wait time if a packet isn't immediately available
- * @param  type        Buffer space when reading data
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_START
- *    - ESP_ERR_MESH_ARGUMENT
- *    - ESP_ERR_MESH_NOT_START
- *    - ESP_ERR_MESH_TIMEOUT
- *    - ESP_ERR_MESH_DISCARD
- */
-mdf_err_t __mwifi_read(uint8_t *src_addr, mwifi_data_type_t *data_type, void *data, size_t *size, TickType_t wait_ticks, uint8_t type);
+    /**
+     * @brief  Receive a packet targeted to self over the mesh network
+     *
+     * @attention Judging the allocation of buffers by the type of the parameter 'data'
+     *            The memory of `data` is externally allocated, and the memory is larger than the total length expected to be received.
+     *            The memory of `data` is allocated internally by `mwifi_read`, which needs to be released after the call.
+     *
+     *
+     * @param  src_addr    The address of the original source of the packet
+     * @param  data_type   The type of the data
+     * @param  data        Pointer to the received mesh packet
+     *                     To apply for buffer space externally, set the type of the data parameter to be (char *) or (uint8_t *)
+     *                     To apply for buffer space internally, set the type of the data parameter to be (char **) or (uint8_t **)
+     * @param  size        A non-zero pointer to the variable holding the length of out_value.
+     *                     In case out_value is not zero, will be set to the actual length of the value written.
+     * @param  wait_ticks  Wait time if a packet isn't immediately available
+     * @param  type        Buffer space when reading data
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_START
+     *    - ESP_ERR_MESH_ARGUMENT
+     *    - ESP_ERR_MESH_NOT_START
+     *    - ESP_ERR_MESH_TIMEOUT
+     *    - ESP_ERR_MESH_DISCARD
+     */
+    mdf_err_t __mwifi_read(uint8_t *src_addr, mwifi_data_type_t *data_type, void *data, size_t *size, TickType_t wait_ticks, uint8_t type);
 #define mwifi_read(src_addr, data_type, data, size, wait_ticks) \
     __mwifi_read(src_addr, data_type, (void *)data, size, wait_ticks, \
                  builtin_types_compatible_p(data, char *) * MWIFI_DATA_MEMORY_MALLOC_EXTERNAL \
@@ -442,70 +444,70 @@ mdf_err_t __mwifi_read(uint8_t *src_addr, mwifi_data_type_t *data_type, void *da
                  + builtin_types_compatible_p(data, char **) * MWIFI_DATA_MEMORY_MALLOC_INTERNAL \
                  + builtin_types_compatible_p(data, uint8_t **) * MWIFI_DATA_MEMORY_MALLOC_INTERNAL)
 
-/**
- * @brief  The root sends a packet to the device in the mesh.
- *
- * @attention 1. If data encryption is enabled, you must ensure that the task that
- *               calls this function is greater than 8KB
- *            2. This API is only used at the root node
- *            3. Can send data to multiple devices at the same time
- *            4. Packets are only transmitted down
- *
- * @param  dest_addrs     The address of the final destination of the packet
- * @param  dest_addrs_num Number of destination addresses
- * @param  data_type      The type of the data
- * @param  data           Pointer to a sending wifi mesh packet
- * @param  size           The length of the data
- * @param  block          Whether to block waiting for data transmission results
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_START
- *    - ESP_ERR_MESH_ARGUMENT
- *    - ESP_ERR_MESH_NOT_START
- *    - ESP_ERR_MESH_DISCONNECTED
- *    - ESP_ERR_MESH_OPT_UNKNOWN
- *    - ESP_ERR_MESH_EXCEED_MTU
- *    - ESP_ERR_MESH_NO_MEMORY
- *    - ESP_ERR_MESH_TIMEOUT
- *    - ESP_ERR_MESH_QUEUE_FULL
- *    - ESP_ERR_MESH_NO_ROUTE_FOUND
- *    - ESP_ERR_MESH_DISCARD
- */
-mdf_err_t mwifi_root_write(const uint8_t *dest_addrs, size_t dest_addrs_num,
-                           const mwifi_data_type_t *data_type, const void *data,
-                           size_t size, bool block);
+    /**
+     * @brief  The root sends a packet to the device in the mesh.
+     *
+     * @attention 1. If data encryption is enabled, you must ensure that the task that
+     *               calls this function is greater than 8KB
+     *            2. This API is only used at the root node
+     *            3. Can send data to multiple devices at the same time
+     *            4. Packets are only transmitted down
+     *
+     * @param  dest_addrs     The address of the final destination of the packet
+     * @param  dest_addrs_num Number of destination addresses
+     * @param  data_type      The type of the data
+     * @param  data           Pointer to a sending wifi mesh packet
+     * @param  size           The length of the data
+     * @param  block          Whether to block waiting for data transmission results
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_START
+     *    - ESP_ERR_MESH_ARGUMENT
+     *    - ESP_ERR_MESH_NOT_START
+     *    - ESP_ERR_MESH_DISCONNECTED
+     *    - ESP_ERR_MESH_OPT_UNKNOWN
+     *    - ESP_ERR_MESH_EXCEED_MTU
+     *    - ESP_ERR_MESH_NO_MEMORY
+     *    - ESP_ERR_MESH_TIMEOUT
+     *    - ESP_ERR_MESH_QUEUE_FULL
+     *    - ESP_ERR_MESH_NO_ROUTE_FOUND
+     *    - ESP_ERR_MESH_DISCARD
+     */
+    mdf_err_t mwifi_root_write(const uint8_t *dest_addrs, size_t dest_addrs_num,
+                               const mwifi_data_type_t *data_type, const void *data,
+                               size_t size, bool block);
 
-/**
- * @brief  receive a packet targeted to external IP network
- *         root uses this API to receive packets destined to external IP network
- *         root forwards the received packets to the final destination via socket.
- *         This API is only used at the root node
- *
- * @attention 1. This API is only used at the root node
- *            2. Judging the allocation of buffers by the type of the parameter 'data'
- *               The memory of `data` is externally allocated, and the memory is larger than the total length expected to be received.
- *               The memory of `data` is allocated internally by `mwifi_read`, which needs to be released after the call.
- *
- * @param  src_addr    the address of the original source of the packet
- * @param  data_type   the type of the data
- * @param  data        Pointer to the received mesh packet
- *                     To apply for buffer space externally, set the type of the data parameter to be (char *) or (uint8_t *)
- *                     To apply for buffer space internally, set the type of the data parameter to be (char **) or (uint8_t **)
- * @param  size        The length of the data
- * @param  wait_ticks  wait time if a packet isn't immediately available(0:no wait, portMAX_DELAY:wait forever)
- * @param  type        Buffer space when reading data
- *
- * @return
- *    - MDF_OK
- *    - MDF_ERR_MWIFI_NOT_START
- *    - ESP_ERR_MESH_ARGUMENT
- *    - ESP_ERR_MESH_NOT_START
- *    - ESP_ERR_MESH_TIMEOUT
- *    - ESP_ERR_MESH_DISCARD
- */
-mdf_err_t __mwifi_root_read(uint8_t *src_addr, mwifi_data_type_t *data_type,
-                            void *data, size_t *size, TickType_t wait_ticks, uint8_t type);
+    /**
+     * @brief  receive a packet targeted to external IP network
+     *         root uses this API to receive packets destined to external IP network
+     *         root forwards the received packets to the final destination via socket.
+     *         This API is only used at the root node
+     *
+     * @attention 1. This API is only used at the root node
+     *            2. Judging the allocation of buffers by the type of the parameter 'data'
+     *               The memory of `data` is externally allocated, and the memory is larger than the total length expected to be received.
+     *               The memory of `data` is allocated internally by `mwifi_read`, which needs to be released after the call.
+     *
+     * @param  src_addr    the address of the original source of the packet
+     * @param  data_type   the type of the data
+     * @param  data        Pointer to the received mesh packet
+     *                     To apply for buffer space externally, set the type of the data parameter to be (char *) or (uint8_t *)
+     *                     To apply for buffer space internally, set the type of the data parameter to be (char **) or (uint8_t **)
+     * @param  size        The length of the data
+     * @param  wait_ticks  wait time if a packet isn't immediately available(0:no wait, portMAX_DELAY:wait forever)
+     * @param  type        Buffer space when reading data
+     *
+     * @return
+     *    - MDF_OK
+     *    - MDF_ERR_MWIFI_NOT_START
+     *    - ESP_ERR_MESH_ARGUMENT
+     *    - ESP_ERR_MESH_NOT_START
+     *    - ESP_ERR_MESH_TIMEOUT
+     *    - ESP_ERR_MESH_DISCARD
+     */
+    mdf_err_t __mwifi_root_read(uint8_t *src_addr, mwifi_data_type_t *data_type,
+                                void *data, size_t *size, TickType_t wait_ticks, uint8_t type);
 #define mwifi_root_read(src_addr, data_type, data, size, wait_ticks) \
     __mwifi_root_read(src_addr, data_type, (void *)data, size, wait_ticks, \
                       builtin_types_compatible_p(data, char *) * MWIFI_DATA_MEMORY_MALLOC_EXTERNAL \
@@ -513,34 +515,34 @@ mdf_err_t __mwifi_root_read(uint8_t *src_addr, mwifi_data_type_t *data_type,
                       + builtin_types_compatible_p(data, char **) * MWIFI_DATA_MEMORY_MALLOC_INTERNAL \
                       + builtin_types_compatible_p(data, uint8_t **) * MWIFI_DATA_MEMORY_MALLOC_INTERNAL)
 
-/**
- * @brief      Post the toDS state to the mesh stack, Usually used to notify the child node, whether the root is successfully connected to the server
- *
- * @attention  This API is only for the root.
- *
- * @param[in]  status  this state represents whether the root is able to access external IP network
- *
- * @return
- *    - ESP_OK
- *    - ESP_FAIL
- */
-mdf_err_t mwifi_post_root_status(bool status);
+    /**
+     * @brief      Post the toDS state to the mesh stack, Usually used to notify the child node, whether the root is successfully connected to the server
+     *
+     * @attention  This API is only for the root.
+     *
+     * @param[in]  status  this state represents whether the root is able to access external IP network
+     *
+     * @return
+     *    - ESP_OK
+     *    - ESP_FAIL
+     */
+    mdf_err_t mwifi_post_root_status(bool status);
 
-/**
- * @brief      Get the toDS state from the mesh stack, Whether the root is successfully connected to the server
- *
- * @return
- *    - true
- *    - flase
- */
-bool mwifi_get_root_status();
+    /**
+     * @brief      Get the toDS state from the mesh stack, Whether the root is successfully connected to the server
+     *
+     * @return
+     *    - true
+     *    - flase
+     */
+    bool mwifi_get_root_status();
 
-/**
- * @brief     Get the RSSI of the parent node
- *
- * @return    RSSI of the parent
- */
-int8_t mwifi_get_parent_rssi();
+    /**
+     * @brief     Get the RSSI of the parent node
+     *
+     * @return    RSSI of the parent
+     */
+    int8_t mwifi_get_parent_rssi();
 
 #ifdef __cplusplus
 }

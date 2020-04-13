@@ -75,10 +75,10 @@ typedef struct {
 static esp_err_t create_packet_file(void)
 {
     uint32_t file_no = 0;
-    char filename[PCAP_FILE_NAME_MAX_LEN];
+    char filename[PCAP_FILE_NAME_MAX_LEN + 16];
 
     do {
-        snprintf(filename, PCAP_FILE_NAME_MAX_LEN, "%s_%d.pcap", packet_filepath, file_no);
+        snprintf(filename, sizeof(filename), "%s_%d.pcap", packet_filepath, file_no);
         ++file_no;
     } while (0 == access(filename, F_OK));
 
@@ -110,7 +110,8 @@ static void create_wifi_filter_hashtable()
     char *wifi_filter_keys[SNIFFER_WLAN_FILTER_MAX] = {"mgmt", "data", "ctrl", "misc", "mpdu", "ampdu"};
     uint32_t wifi_filter_values[SNIFFER_WLAN_FILTER_MAX] = { WIFI_PROMIS_FILTER_MASK_MGMT, WIFI_PROMIS_FILTER_MASK_DATA,
                                                              WIFI_PROMIS_FILTER_MASK_CTRL, WIFI_PROMIS_FILTER_MASK_MISC,
-                                                             WIFI_PROMIS_FILTER_MASK_DATA_MPDU, WIFI_PROMIS_FILTER_MASK_DATA_AMPDU };
+                                                             WIFI_PROMIS_FILTER_MASK_DATA_MPDU, WIFI_PROMIS_FILTER_MASK_DATA_AMPDU
+                                                           };
 
     for (int i = 0; i < SNIFFER_WLAN_FILTER_MAX; i++) {
         uint32_t idx = hash_func(wifi_filter_keys[i], SNIFFER_WLAN_FILTER_MAX);
@@ -304,6 +305,7 @@ static int wifi_sniffer_func(int argc, char **argv)
         } else {
             MDF_LOGW("sniffer already stop");
         }
+
         return 0;
     }
 
@@ -356,9 +358,9 @@ static int wifi_sniffer_func(int argc, char **argv)
         /* start sniffer */
         sniffer_start(&sniffer);
     } else {
-         MDF_LOGW("Please stop sniffer firstly, then start with parameters");
+        MDF_LOGW("Please stop sniffer firstly, then start with parameters");
     }
-    
+
     return 0;
 }
 
