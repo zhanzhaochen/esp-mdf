@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "esp_console.h"
 #include "argtable3/argtable3.h"
-#include "base64.h"
+#include "esp_console.h"
+#include "mbedtls/base64.h"
 
-#include "mdf_common.h"
 #include "mdebug.h"
+#include "mdf_common.h"
 
-#define MDEBUG_LOG_MAX_SIZE   (MESPNOW_PAYLOAD_LEN * 2 - 2)  /**< Set log length size */
+#define MDEBUG_LOG_MAX_SIZE (MESPNOW_PAYLOAD_LEN * 2 - 2) /**< Set log length size */
 
 static const char *TAG = "mdebug_cmd";
 
@@ -28,7 +28,7 @@ static bool mac_str2hex(const char *mac_str, uint8_t *mac_hex)
     MDF_ERROR_ASSERT(!mac_str);
     MDF_ERROR_ASSERT(!mac_hex);
 
-    uint32_t mac_data[6] = {0};
+    uint32_t mac_data[6] = { 0 };
 
     int ret = sscanf(mac_str, MACSTR, mac_data, mac_data + 1, mac_data + 2,
                      mac_data + 3, mac_data + 4, mac_data + 5);
@@ -45,7 +45,7 @@ static bool mac_str2hex(const char *mac_str, uint8_t *mac_hex)
  */
 static int version_func(int argc, char **argv)
 {
-    esp_chip_info_t chip_info = {0};
+    esp_chip_info_t chip_info = { 0 };
 
     /**< Pint system information */
     esp_chip_info(&chip_info);
@@ -96,12 +96,12 @@ static struct {
 static int log_func(int argc, char **argv)
 {
     mdf_err_t ret = MDF_OK;
-    mdebug_log_config_t log_config = {0};
-    const char *level_str[6] = {"NONE", "ERR", "WARN", "INFO", "DEBUG", "VER"};
+    mdebug_log_config_t log_config = { 0 };
+    const char *level_str[6] = { "NONE", "ERR", "WARN", "INFO", "DEBUG", "VER" };
 
     mdebug_log_get_config(&log_config);
 
-    if (arg_parse(argc, argv, (void **) &log_args) != ESP_OK) {
+    if (arg_parse(argc, argv, (void **)&log_args) != ESP_OK) {
         arg_print_errors(stderr, log_args.end, argv[0]);
         return MDF_FAIL;
     }
@@ -119,7 +119,7 @@ static int log_func(int argc, char **argv)
                         "The format of the address is incorrect. Please enter the format as xx:xx:xx:xx:xx:xx");
     }
 
-    if (log_args.enable_type->count) {  /**< Enable write to flash memory */
+    if (log_args.enable_type->count) { /**< Enable write to flash memory */
         if (!strcasecmp(log_args.enable_type->sval[0], "flash")) {
             log_config.log_flash_enable = true;
         } else if (!strcasecmp(log_args.enable_type->sval[0], "uart")) {
@@ -129,7 +129,7 @@ static int log_func(int argc, char **argv)
         }
     }
 
-    if (log_args.disable_type->count) {  /**< Disable write to flash memory */
+    if (log_args.disable_type->count) { /**< Disable write to flash memory */
         if (!strcasecmp(log_args.enable_type->sval[0], "flash")) {
             log_config.log_flash_enable = false;
         } else if (!strcasecmp(log_args.enable_type->sval[0], "uart")) {
@@ -144,8 +144,8 @@ static int log_func(int argc, char **argv)
                  log_config.log_flash_enable ? "/flash" : "", log_config.log_espnow_enable ? "/espuart" : "");
     }
 
-    if (log_args.read->count) {  /**< read to the flash of log data */
-        int log_size   = mdebug_flash_size();
+    if (log_args.read->count) { /**< read to the flash of log data */
+        int log_size = mdebug_flash_size();
         char *log_data = MDF_MALLOC(MDEBUG_LOG_MAX_SIZE - 17);
 
         MDF_LOGI("The flash partition that stores the log size: %d", log_size);
@@ -171,14 +171,14 @@ static int log_func(int argc, char **argv)
  */
 static void register_log()
 {
-    log_args.tag         = arg_str0("t", "tag", "<tag>", "Tag of the log entries to enable, '*' resets log level for all tags to the given value");
-    log_args.level       = arg_str0("l", "level", "<level>", "Selects log level to enable (NONE, ERR, WARN, INFO, DEBUG, VER)");
+    log_args.tag = arg_str0("t", "tag", "<tag>", "Tag of the log entries to enable, '*' resets log level for all tags to the given value");
+    log_args.level = arg_str0("l", "level", "<level>", "Selects log level to enable (NONE, ERR, WARN, INFO, DEBUG, VER)");
     log_args.enable_type = arg_str0("e", "enable_type", "<enable_type('uart' or 'flash' or 'espnow')>", "Selects mdebug log to enable (uart,flash,espnow)");
     log_args.disable_type = arg_str0("d", "disable_type", "<disable_type('uart' or 'flash' or 'espnow')>", "Selects mdebug log to disable (uart,flash,espnow)");
-    log_args.output_type  = arg_lit0("o", "output_type", "Output enable type");
-    log_args.read        = arg_lit0("r", "read", "Read to the flash of mdebug log information");
-    log_args.send        = arg_str0("s", "send", "<addr (xx:xx:xx:xx:xx:xx)>", "Configure the address of the ESP-NOW log receiver");
-    log_args.end         = arg_end(8);
+    log_args.output_type = arg_lit0("o", "output_type", "Output enable type");
+    log_args.read = arg_lit0("r", "read", "Read to the flash of mdebug log information");
+    log_args.send = arg_str0("s", "send", "<addr (xx:xx:xx:xx:xx:xx)>", "Configure the address of the ESP-NOW log receiver");
+    log_args.end = arg_end(8);
 
     const esp_console_cmd_t cmd = {
         .command = "log",
@@ -207,9 +207,9 @@ static void register_restart()
 {
     const esp_console_cmd_t cmd = {
         .command = "restart",
-        .help    = "Software reset of the chip",
-        .hint    = NULL,
-        .func    = &restart_func,
+        .help = "Software reset of the chip",
+        .hint = NULL,
+        .func = &restart_func,
     };
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
@@ -298,11 +298,11 @@ static struct {
  */
 static int coredump_func(int argc, char **argv)
 {
-    mdf_err_t ret        = MDF_OK;
+    mdf_err_t ret = MDF_OK;
     ssize_t coredump_size = 0;
     const esp_partition_t *coredump_part = NULL;
 
-    if (arg_parse(argc, argv, (void **) &coredump_args) != ESP_OK) {
+    if (arg_parse(argc, argv, (void **)&coredump_args) != ESP_OK) {
         arg_print_errors(stderr, coredump_args.end, argv[0]);
         return MDF_FAIL;
     }
@@ -319,7 +319,7 @@ static int coredump_func(int argc, char **argv)
     }
 
     if (coredump_args.send_length->count) {
-        uint8_t dest_addr[6] = {0x0};
+        uint8_t dest_addr[6] = { 0x0 };
         MDF_LOGI("Core dump is length: %d Bytes", coredump_size);
 
         if (mac_str2hex(coredump_args.send_length->sval[0], dest_addr)) {
@@ -338,7 +338,10 @@ static int coredump_func(int argc, char **argv)
         for (int offset = 4; offset < coredump_size; offset += COREDUMP_BUFFER_SIZE) {
             size_t size = MIN(COREDUMP_BUFFER_SIZE, coredump_size - offset);
             esp_partition_read(coredump_part, offset, buffer, size);
-            uint8_t *b64_buf = base64_encode(buffer, size, NULL);
+            size_t dlen = (size + 2) / 3 * 4; //base64 encode maximum length = ⌈ n / 3 ⌉ * 4
+            size_t olen = 0;
+            uint8_t *b64_buf = MDF_MALLOC(dlen);
+            mbedtls_base64_encode(b64_buf, dlen, &olen, buffer, size);
             printf("%s", b64_buf);
             MDF_FREE(b64_buf);
         }
@@ -352,7 +355,7 @@ static int coredump_func(int argc, char **argv)
     }
 
     if (coredump_args.send->count) {
-        uint8_t dest_addr[6] = {0x0};
+        uint8_t dest_addr[6] = { 0x0 };
         mdebug_coredump_packet_t *packet = NULL;
 
         ret = mac_str2hex(coredump_args.send->sval[0], dest_addr);
@@ -401,7 +404,7 @@ static int coredump_func(int argc, char **argv)
         }
 
         packet->type = MDEBUG_COREDUMP_END;
-        packet->seq  = coredump_size / sizeof(packet->data) + (coredump_size % sizeof(packet->data) ? 1 : 0);
+        packet->seq = coredump_size / sizeof(packet->data) + (coredump_size % sizeof(packet->data) ? 1 : 0);
         packet->size = coredump_size;
         ret = mdebug_espnow_write(dest_addr, packet, 4, MDEBUG_ESPNOW_COREDUMP, portMAX_DELAY);
         MDF_ERROR_CHECK(ret != MDF_OK, ret, "mdebug_espnow_write, seq: %d", packet->seq);
@@ -426,10 +429,10 @@ static void register_coredump()
     coredump_args.length = arg_lit0("l", "length", "Get coredump data length");
     coredump_args.send_length = arg_str0(NULL, "sendlength", "Send coredump data length", "Configure the address of the coredump data length receiver");
     coredump_args.output = arg_lit0("o", "output", "Read the coredump data of the device");
-    coredump_args.erase  = arg_lit0("e", "erase", "Erase the coredump data of the device");
-    coredump_args.seq    = arg_int0("q", "sequence", "<seq>", "Sequence");
-    coredump_args.send   = arg_str0("s", "send", "<addr (xx:xx:xx:xx:xx:xx)>", "Configure the address of the ESP-NOW log receiver");
-    coredump_args.end    = arg_end(5);
+    coredump_args.erase = arg_lit0("e", "erase", "Erase the coredump data of the device");
+    coredump_args.seq = arg_int0("q", "sequence", "<seq>", "Sequence");
+    coredump_args.send = arg_str0("s", "send", "<addr (xx:xx:xx:xx:xx:xx)>", "Configure the address of the ESP-NOW log receiver");
+    coredump_args.end = arg_end(5);
 
     const esp_console_cmd_t cmd = {
         .command = "coredump",
