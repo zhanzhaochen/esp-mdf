@@ -122,6 +122,8 @@ static mdf_err_t mwifi_waive_root_timer_create(void)
     return MDF_OK;
 }
 
+#endif /**< CONFIG_MWIFI_WAIVE_ROOT */
+
 static void esp_ip_event_cb(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     MDF_LOGD("esp_ip_event_cb event_id: %d", event_id);
@@ -131,6 +133,8 @@ static void esp_ip_event_cb(void *arg, esp_event_base_t event_base, int32_t even
     memcpy(&s_event_info, event_data, sizeof(mesh_event_info_t));
 
     switch (event_id) {
+
+
         case IP_EVENT_STA_LOST_IP: {
             MDF_LOGI("Root loses the IP address");
             esp_mesh_disconnect();
@@ -138,11 +142,14 @@ static void esp_ip_event_cb(void *arg, esp_event_base_t event_base, int32_t even
             break;
         }
 
+#ifdef CONFIG_MWIFI_WAIVE_ROOT
         case IP_EVENT_STA_GOT_IP: {
+            mwifi_waive_root_timer_delete();
+            mwifi_waive_root_timer_create();
             mdf_event_loop_send(MDF_EVENT_MWIFI_ROOT_GOT_IP, &s_event_info);
             break;
         }
-
+#endif /**< CONFIG_MWIFI_WAIVE_ROOT */
         default:
             break;
     }
@@ -195,6 +202,15 @@ static void esp_mesh_event_cb(void *arg, esp_event_base_t event_base, int32_t ev
 
             break;
         }
+#ifdef CONFIG_MWIFI_WAIVE_ROOT
+        case MESH_EVENT_LAYER_CHANGE:{
+            if (!esp_mesh_is_root()) {
+                mwifi_waive_root_timer_delete();
+            }
+
+            break;
+        }
+#endif /**< CONFIG_MWIFI_WAIVE_ROOT */
 
         case MESH_EVENT_STARTED: {
             MDF_LOGI("MESH is started");
