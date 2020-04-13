@@ -545,6 +545,9 @@ static void mconfig_blufi_event_callback(esp_blufi_cb_event_t event, esp_blufi_c
             break;
 
         case ESP_BLUFI_EVENT_BLE_CONNECT:
+            ret = esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_CONN_HDL0, ESP_PWR_LVL_P7);
+            MDF_ERROR_BREAK(ret != ESP_OK, "<%s> Set BLE connection TX power", mdf_err_to_name(ret));
+
             MDF_LOGD("BLUFI ble connect, server_if: %d, conn_id: %d",
                      param->connect.server_if, param->connect.conn_id);
             s_server_if = param->connect.server_if;
@@ -598,6 +601,9 @@ static void mconfig_blufi_event_callback(esp_blufi_cb_event_t event, esp_blufi_c
         case ESP_BLUFI_EVENT_RECV_MDF_CUSTOM: {
             MDF_LOGD("data_len: %d, custom_data: %.*s",
                      param->custom_data.data_len, param->custom_data.data_len, param->custom_data.data);
+
+            mconfig_ble_connect_timer_delete();
+            mconfig_ble_connect_timer_create();
 
             ret = mdf_event_loop(MDF_EVENT_MCONFIG_BLUFI_RECV, &param->custom_data);
             MDF_ERROR_BREAK(ret != MDF_OK, "<%s> mdf_event_loop", mdf_err_to_name(ret));
@@ -660,7 +666,7 @@ static void mconfig_blufi_event_callback(esp_blufi_cb_event_t event, esp_blufi_c
 
                     case BLUFI_DATA_MESH_ID:
                         if (blufi_data->len != sizeof(g_recv_config->config.mesh_id)
-                                && !MWIFI_ADDR_IS_EMPTY(blufi_data->data)) {
+                                || MWIFI_ADDR_IS_EMPTY(blufi_data->data)) {
                             MDF_LOGW("Mesh id: %s, len: %d", blufi_data->data, blufi_data->len);
                             config_flag = false;
                             break;
@@ -933,9 +939,6 @@ mdf_err_t mconfig_blufi_init(const mconfig_blufi_config_t *cfg)
 
     ret = esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P7);
     MDF_ERROR_CHECK(ret != ESP_OK, ret, "Set BLE advertising TX power");
-
-    ret = esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_CONN_HDL0, ESP_PWR_LVL_P7);
-    MDF_ERROR_CHECK(ret != ESP_OK, ret, "Set BLE connection TX power");
 
     return MDF_OK;
 }

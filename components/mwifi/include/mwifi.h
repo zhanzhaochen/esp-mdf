@@ -20,36 +20,8 @@
 #include "esp_mesh_internal.h"
 
 #ifdef __cplusplus
-
-/*
- *@brief Next templates makes gnu builtin: __builtin_types_compatible_p
- *       compatible with C++ compilation
- */
-template<typename T, typename U>
-struct is_same {
-    static const int value = 0;
-};
-
-template<typename T>
-struct is_same<T, T> {
-    static const int value = 1;
-};
-
-template<typename T, typename U>
-int cxx_is_compatible()
-{
-    return is_same<T, U>::value;
-}
-
-/**
- * @brief Macro adaptation for C++ compilation, using previous C++ templates for type checking
- */
-#define builtin_types_compatible_p(data, type)  cxx_is_compatible<decltype(data),type>()
 extern "C" {
-#else
-#define builtin_types_compatible_p(data, type)  __builtin_types_compatible_p(typeof(data), type)
 #endif /**< _cplusplus */
-
 
 #define MWIFI_PAYLOAD_LEN       (1456) /**< Max payload size(in bytes) */
 
@@ -296,7 +268,7 @@ esp_err_t esp_wifi_vnd_mesh_get(mesh_assoc_t *mesh_assoc);
  *    - MDF_ERR_MWIFI_NOT_INIT
  *    - MDF_ERR_MWIFI_INITED
  */
-mdf_err_t mwifi_init(mwifi_init_config_t *config);
+mdf_err_t mwifi_init(const mwifi_init_config_t *config);
 
 
 /**
@@ -322,7 +294,7 @@ mdf_err_t mwifi_deinit(void);
  *    - MDF_OK
  *    - MDF_ERR_MWIFI_ARGUMENT
  */
-mdf_err_t mwifi_set_init_config(mwifi_init_config_t *init_config);
+mdf_err_t mwifi_set_init_config(const mwifi_init_config_t *init_config);
 
 /**
  * @brief  Get Mwifi init configuration.
@@ -344,7 +316,7 @@ mdf_err_t mwifi_get_init_config(mwifi_init_config_t *init_config);
  *    - MDF_OK
  *    - MDF_ERR_MWIFI_ARGUMENT
  */
-mdf_err_t mwifi_set_config(mwifi_config_t *config);
+mdf_err_t mwifi_set_config(const mwifi_config_t *config);
 
 /**
  * @brief  Get the configuration of the AP

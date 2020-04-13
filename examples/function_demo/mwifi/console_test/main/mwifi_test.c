@@ -77,7 +77,7 @@ static struct {
 
 static int mesh_config_func(int argc, char **argv)
 {
-    if (arg_parse(argc, argv, (void**) &mesh_config_args) != ESP_OK) {
+    if (arg_parse(argc, argv, (void **) &mesh_config_args) != ESP_OK) {
         arg_print_errors(stderr, mesh_config_args.end, argv[0]);
         return MDF_FAIL;
     }
@@ -86,7 +86,7 @@ static int mesh_config_func(int argc, char **argv)
     mwifi_config_t ap_config = {0};
     mwifi_init_config_t networking_config = MWIFI_INIT_CONFIG_DEFAULT();
     MDF_ERROR_CHECK(esp_wifi_get_max_tx_power((int8_t *)&ret), ESP_ERR_NOT_SUPPORTED,
-                    "Run mesh_config after initializing ESP-MESH");
+                    "Run mesh_config after initializing ESP-WIFI-MESH");
 
     mwifi_get_config(&ap_config);
     mwifi_get_init_config(&networking_config);
@@ -144,13 +144,13 @@ static int mesh_config_func(int argc, char **argv)
     }
 
     ret = mwifi_set_init_config(&networking_config);
-    MDF_ERROR_CHECK(ret != MDF_OK, ESP_ERR_INVALID_ARG, "ESP-MESH networking parameter error");
+    MDF_ERROR_CHECK(ret != MDF_OK, ESP_ERR_INVALID_ARG, "ESP-WIFI-MESH networking parameter error");
 
     ret = mwifi_set_config(&ap_config);
-    MDF_ERROR_CHECK(ret != MDF_OK, ESP_ERR_INVALID_ARG, "ESP-MESH's AP configuration parameter error");
+    MDF_ERROR_CHECK(ret != MDF_OK, ESP_ERR_INVALID_ARG, "ESP-WIFI-MESH's AP configuration parameter error");
 
     ret = mwifi_restart();
-    MDF_ERROR_CHECK(ret != MDF_OK, ESP_ERR_INVALID_ARG, "restart ESP-MESH");
+    MDF_ERROR_CHECK(ret != MDF_OK, ESP_ERR_INVALID_ARG, "restart ESP-WIFI-MESH");
 
     if (mesh_config_args.save->count) {
         mdf_info_save("init_config", &networking_config, sizeof(mwifi_init_config_t));
@@ -172,12 +172,12 @@ static void register_mesh_config()
     mesh_config_args.ssid           = arg_str0("s", "ssid", "<ssid>", "SSID of router");
     mesh_config_args.password       = arg_str0("p", "password", "<password>", "Password of router");
     mesh_config_args.bssid          = arg_str0("b", "bssid", "<bssid (xx:xx:xx:xx:xx:xx)>", "BSSID of router");
-    mesh_config_args.channel        = arg_int0("c", "channel", "<channel (1 ~ 13)>", "Channel of ESP-MESH and router");
+    mesh_config_args.channel        = arg_int0("c", "channel", "<channel (1 ~ 13)>", "Channel of ESP-WIFI-MESH and router");
     mesh_config_args.mesh_id        = arg_str0("i", "mesh_id", "<mesh_id (6 Bytes)>", "Mesh network ID");
-    mesh_config_args.mesh_type      = arg_str0("t", "mesh_type", "<mesh_type ('idle' or 'root' or 'node' or 'leaf')>", "Device type in ESP-MESH");
-    mesh_config_args.mesh_password  = arg_str0("P", "mesh_password", "<mesh_password>", "Password for secure communication between devices in ESP-MESH");
-    mesh_config_args.max_connection = arg_int0("n", "max_connection", "<max_connection (1 ~ 10)>", "Max number of ESP-MESH softAP connections");
-    mesh_config_args.max_layer      = arg_int0("l", "max_layer", "<max_layer (1 ~ 32)>", "Max number of allowed layers in ESP-MESH");
+    mesh_config_args.mesh_type      = arg_str0("t", "mesh_type", "<mesh_type ('idle' or 'root' or 'node' or 'leaf')>", "Device type in ESP-WIFI-MESH");
+    mesh_config_args.mesh_password  = arg_str0("P", "mesh_password", "<mesh_password>", "Password for secure communication between devices in ESP-WIFI-MESH");
+    mesh_config_args.max_connection = arg_int0("n", "max_connection", "<max_connection (1 ~ 10)>", "Max number of ESP-WIFI-MESH softAP connections");
+    mesh_config_args.max_layer      = arg_int0("l", "max_layer", "<max_layer (1 ~ 32)>", "Max number of allowed layers in ESP-WIFI-MESH");
     mesh_config_args.output         = arg_lit0("o", "output", "Print all configuration information");
     mesh_config_args.save           = arg_lit0("S", "save", "Save mesh configuration information");
     mesh_config_args.erase           = arg_lit0("E", "erase", "Erase mesh configuration information");
@@ -185,7 +185,7 @@ static void register_mesh_config()
 
     const esp_console_cmd_t cmd = {
         .command = "mesh_config",
-        .help = "ESP-MESH configuration",
+        .help = "ESP-WIFI-MESH configuration",
         .hint = NULL,
         .func = &mesh_config_func,
         .argtable = &mesh_config_args,
@@ -204,7 +204,7 @@ static struct {
 
 static int mesh_status_func(int argc, char **argv)
 {
-    if (arg_parse(argc, argv, (void**) &mesh_status_args) != ESP_OK) {
+    if (arg_parse(argc, argv, (void **) &mesh_status_args) != ESP_OK) {
         arg_print_errors(stderr, mesh_status_args.end, argv[0]);
         return MDF_FAIL;
     }
@@ -236,13 +236,13 @@ static int mesh_status_func(int argc, char **argv)
 
     if (mesh_status_args.start->count) {
         ret = mwifi_restart();
-        MDF_ERROR_CHECK(ret != MDF_OK, ret, "Start ESP-MESH");
+        MDF_ERROR_CHECK(ret != MDF_OK, ret, "Start ESP-WIFI-MESH");
     }
 
     if (mesh_status_args.stop->count) {
         MDF_LOGD("task, name: %s, HWM: %d", pcTaskGetTaskName(NULL), uxTaskGetStackHighWaterMark(NULL));
         ret = mwifi_stop();
-        MDF_ERROR_CHECK(ret != MDF_OK, ret, "Stop ESP-MESH");
+        MDF_ERROR_CHECK(ret != MDF_OK, ret, "Stop ESP-WIFI-MESH");
     }
 
     return ESP_OK;
@@ -250,14 +250,14 @@ static int mesh_status_func(int argc, char **argv)
 
 static void register_mesh_status()
 {
-    mesh_status_args.start  = arg_lit0("s", "start", "Start ESP-MESH, Start mesh network management service");
-    mesh_status_args.stop   = arg_lit0("p", "stop", "Stop ESP-MESH, Stop mesh network management service");
+    mesh_status_args.start  = arg_lit0("s", "start", "Start ESP-WIFI-MESH, Start mesh network management service");
+    mesh_status_args.stop   = arg_lit0("p", "stop", "Stop ESP-WIFI-MESH, Stop mesh network management service");
     mesh_status_args.output = arg_lit0("o", "output", "Print all status information");
     mesh_status_args.end    = arg_end(3);
 
     const esp_console_cmd_t cmd = {
         .command = "mesh_status",
-        .help = "ESP-MESH status",
+        .help = "ESP-WIFI-MESH status",
         .hint = NULL,
         .func = &mesh_status_func,
         .argtable = &mesh_status_args,
@@ -277,7 +277,7 @@ static struct {
 
 static esp_err_t mesh_scan_func(int argc, char **argv)
 {
-    if (arg_parse(argc, argv, (void**) &mesh_scan_args) != ESP_OK) {
+    if (arg_parse(argc, argv, (void **) &mesh_scan_args) != ESP_OK) {
         arg_print_errors(stderr, mesh_scan_args.end, argv[0]);
         return ESP_FAIL;
     }
@@ -392,7 +392,7 @@ static void register_mesh_scan()
 
     const esp_console_cmd_t cmd = {
         .command  = "mesh_scan",
-        .help     = "ESP-MESH scan",
+        .help     = "ESP-WIFI-MESH scan",
         .hint     = NULL,
         .func     = &mesh_scan_func,
         .argtable = &mesh_scan_args,
@@ -420,7 +420,7 @@ static void mesh_iperf_client_task(void *arg)
             xTaskGetTickCount() < end_ticks && !g_mesh_iperf_cfg.finish; ++total_count) {
         ret = mwifi_write(g_mesh_iperf_cfg.addr, &data_type, buffer,
                           g_mesh_iperf_cfg.packet_len, true);
-        MDF_ERROR_CONTINUE(ret != MDF_OK, "<%s> mwifi_write", mdf_err_to_name(ret));
+        MDF_ERROR_BREAK(ret != MDF_OK, "<%s> mwifi_write", mdf_err_to_name(ret));
         data_type.custom++;
 
         if (xTaskGetTickCount() >= report_ticks) {
@@ -456,11 +456,13 @@ static void mesh_iperf_client_task(void *arg)
     uint32_t lost_count  = total_count - write_count;
     double total_len     = (total_count * g_mesh_iperf_cfg.packet_len) / 1e6;
 
-    MDF_LOGI("client Report:");
-    MDF_LOGI("[ ID] Interval      Transfer       Bandwidth      Jitter   Lost/Total Datagrams");
-    MDF_LOGI("[000] %2d-%2d sec    %2.2f MBytes    %0.2f Mbits/sec    %d ms    %d/%d (%d%%)",
-             0, spend_time / 1000, total_len, total_len * 8 * 1000 / spend_time, spend_time / write_count,
-             lost_count, total_count, lost_count * 100 / total_count);
+    if (total_count && write_count && spend_time) {
+        MDF_LOGI("client Report:");
+        MDF_LOGI("[ ID] Interval      Transfer       Bandwidth      Jitter   Lost/Total Datagrams");
+        MDF_LOGI("[000] %2d-%2d sec    %2.2f MBytes    %0.2f Mbits/sec    %d ms    %d/%d (%d%%)",
+                 0, spend_time / 1000, total_len, total_len * 8 * 1000 / spend_time, spend_time / write_count,
+                 lost_count, total_count, lost_count * 100 / total_count);
+    }
 
     MDF_FREE(buffer);
     g_mesh_iperf_cfg.finish = true;
@@ -486,9 +488,11 @@ static void mesh_iperf_server_task(void *arg)
 
         if (ret == MDF_ERR_MWIFI_TIMEOUT || ret == ESP_ERR_MESH_TIMEOUT) {
             continue;
+        } else if (ret != MDF_OK) {
+            g_mesh_iperf_cfg.finish = true;
+            MDF_LOGW("<%s> mwifi_read", mdf_err_to_name(ret));
+            goto FREE_MEM;
         }
-
-        MDF_ERROR_GOTO(ret != MDF_OK, FREE_MEM, "<%s> mwifi_read", mdf_err_to_name(ret));
 
         recv_count++;
 
@@ -502,7 +506,7 @@ static void mesh_iperf_server_task(void *arg)
             uint32_t report_timer = (report_ticks - start_ticks) * portTICK_RATE_MS / 1000;
             double report_size    = (data_type.custom - report_count) * g_mesh_iperf_cfg.packet_len / 1e6;
             MDF_LOGI("["MACSTR"]  %2d-%2d sec  %2.2f MBytes  %0.2f Mbits/sec",
-                     MAC2STR(g_mesh_iperf_cfg.addr), report_timer - g_mesh_iperf_cfg.report_interval, report_timer ,
+                     MAC2STR(g_mesh_iperf_cfg.addr), report_timer - g_mesh_iperf_cfg.report_interval, report_timer,
                      report_size, report_size * 8 / g_mesh_iperf_cfg.report_interval);
 
             report_ticks = xTaskGetTickCount() + g_mesh_iperf_cfg.report_interval * 1000 / portTICK_RATE_MS;
@@ -626,7 +630,7 @@ static esp_err_t mesh_iperf_func(int argc, char **argv)
     g_mesh_iperf_cfg.report_interval = 3;
     g_mesh_iperf_cfg.ping_count      = 64;
 
-    if (arg_parse(argc, argv, (void**) &mesh_iperf_args) != ESP_OK) {
+    if (arg_parse(argc, argv, (void **) &mesh_iperf_args) != ESP_OK) {
         arg_print_errors(stderr, mesh_iperf_args.end, argv[0]);
         return ESP_FAIL;
     }
@@ -663,6 +667,7 @@ static esp_err_t mesh_iperf_func(int argc, char **argv)
     esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac);
 
     g_mesh_iperf_cfg.finish = false;
+
     if (mesh_iperf_args.client->count) {
         ret = mac_str2hex(mesh_iperf_args.client->sval[0], g_mesh_iperf_cfg.addr);
         MDF_ERROR_CHECK(ret == false, ESP_ERR_INVALID_ARG,
@@ -670,7 +675,7 @@ static esp_err_t mesh_iperf_func(int argc, char **argv)
 
         MDF_LOGI("------------------------------------------------------------");
         MDF_LOGI("client " MACSTR " send to " MACSTR, MAC2STR(sta_mac), MAC2STR(g_mesh_iperf_cfg.addr));
-        MDF_LOGI("ESP-MESH layer: %d", esp_mesh_get_layer());
+        MDF_LOGI("ESP-WIFI-MESH layer: %d", esp_mesh_get_layer());
         MDF_LOGI("------------------------------------------------------------");
         MDF_LOGI("time: %d, interval: %d, len: %d",
                  g_mesh_iperf_cfg.transmit_time, g_mesh_iperf_cfg.report_interval,
@@ -690,8 +695,8 @@ static esp_err_t mesh_iperf_func(int argc, char **argv)
     if (mesh_iperf_args.server->count) {
         MDF_LOGI("------------------------------------------------------------");
         MDF_LOGI("Server " MACSTR " listening", MAC2STR(sta_mac));
-        MDF_LOGI("ESP-MESH window size: 8195 bytes");
-        MDF_LOGI("ESP-MESH layer: %d", esp_mesh_get_layer());
+        MDF_LOGI("ESP-WIFI-MESH window size: 8195 bytes");
+        MDF_LOGI("ESP-WIFI-MESH layer: %d", esp_mesh_get_layer());
         MDF_LOGI("------------------------------------------------------------");
 
         xTaskCreatePinnedToCore(mesh_iperf_server_task, "mesh_iperf_server", 4 * 1024,
@@ -715,7 +720,7 @@ static void register_mesh_iperf()
 
     const esp_console_cmd_t cmd = {
         .command  = "mesh_iperf",
-        .help     = "ESP-MESH iperf",
+        .help     = "ESP-WIFI-MESH iperf",
         .hint     = NULL,
         .func     = &mesh_iperf_func,
         .argtable = &mesh_iperf_args,
@@ -815,7 +820,7 @@ void app_main()
         MDF_ERROR_ASSERT(mwifi_set_init_config(&networking_config));
         MDF_ERROR_ASSERT(mwifi_start());
     }
-    
+
     /**
      * @brief Add debug function, you can use serial command and wireless debugging.
      *      1. Initialize console module
@@ -834,13 +839,13 @@ void app_main()
 
     printf("\n");
     MDF_LOGI(" ==================================================");
-    MDF_LOGI(" |             Steps to test ESP-MESH             |");
+    MDF_LOGI(" |             Steps to test ESP-WIFI-MESH             |");
     MDF_LOGI(" |                                                |");
     MDF_LOGI(" |  1. Print 'help' to gain overview of commands  |");
     MDF_LOGI(" |     mdf> help                                  |");
-    MDF_LOGI(" |  2. Configure ESP-MESH                         |");
+    MDF_LOGI(" |  2. Configure ESP-WIFI-MESH                         |");
     MDF_LOGI(" |     mdf> mesh_config -i <id> -s <ssid> -p <pwd> |");
-    MDF_LOGI(" |  3. Setup ESP-MESH                             |");
+    MDF_LOGI(" |  3. Setup ESP-WIFI-MESH                             |");
     MDF_LOGI(" |     mdf> mesh_status -s                        |");
     MDF_LOGI(" |  4. Run iperf to test throughput               |");
     MDF_LOGI(" |     mdf> mesh_iperf -s                         |");

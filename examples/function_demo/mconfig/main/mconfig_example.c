@@ -70,6 +70,16 @@ static mdf_err_t event_loop_cb(mdf_event_loop_t event, void *ctx)
             MDF_LOGI("MDF_EVENT_MCONFIG_BLUFI_STA_CONNECTED");
             break;
 
+        /**< Add a custom communication process */
+        case MDF_EVENT_MCONFIG_BLUFI_RECV: {
+            mconfig_blufi_data_t *blufi_data = (mconfig_blufi_data_t *)ctx;
+            MDF_LOGI("recv data: %.*s", blufi_data->size, blufi_data->data);
+
+            // ret = mconfig_blufi_send(blufi_data->data, blufi_data->size);
+            // MDF_ERROR_BREAK(ret != MDF_OK, "<%> mconfig_blufi_send", mdf_err_to_name(ret));
+            break;
+        }
+
         default:
             break;
     }
@@ -156,11 +166,11 @@ void app_main()
 
     uint8_t sta_mac[6] = {0};
     MDF_ERROR_ASSERT(esp_wifi_get_mac(ESP_IF_WIFI_STA, sta_mac));
-    sprintf(name, "ESP-MESH_%02x%02x", sta_mac[4], sta_mac[5]);
+    sprintf(name, "ESP-WIFI-MESH_%02x%02x", sta_mac[4], sta_mac[5]);
 
     /**
      * @note `custom_data` is used for specific application custom data, non-essential fields.
-     *       can be passed through the APP distribution network (ESP-MESH Config (The bottom
+     *       can be passed through the APP distribution network (ESP-WIFI-MESH Config (The bottom
      *       right corner of the configured page) > Custom Data)
      */
     MDF_ERROR_ASSERT(get_network_config(name, &mwifi_config, custom_data));

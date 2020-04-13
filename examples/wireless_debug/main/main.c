@@ -95,12 +95,13 @@ void app_main()
      * @brief   1.Initialize event loop, receive event
      *          2.Initialize wifi with station mode
      *          3.Initialize espnow(ESP-NOW is a kind of connectionless WiFi communication protocol)
-     *          4.Initialize ESP-MESH network
+     *          4.Initialize ESP-WIFI-MESH network
      */
     MDF_ERROR_ASSERT(mdf_event_loop_init(event_loop_cb));
     MDF_ERROR_ASSERT(wifi_init());
     MDF_ERROR_ASSERT(mespnow_init());
     MDF_ERROR_ASSERT(mwifi_init(&init_config));
+    MDF_ERROR_ASSERT(mdebug_espnow_init());
 
     /**
      * @brief Add debug function, you can use serial command and wireless debugging.

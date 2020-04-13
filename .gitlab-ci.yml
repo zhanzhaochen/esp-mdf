@@ -103,6 +103,24 @@ build_example_mwifi_norouter:
     ARTIFACTS_NAME: "mwifi"
     EXAMPLE_PATH: "examples/function_demo/mwifi/no_router"
 
+build_example_mwifi_console_test:
+  <<: *build_template
+  variables:
+    ARTIFACTS_NAME: "mwifi"
+    EXAMPLE_PATH: "examples/function_demo/mwifi/console_test"
+
+build_example_mwifi_mqtt_example:
+  <<: *build_template
+  variables:
+    ARTIFACTS_NAME: "mwifi"
+    EXAMPLE_PATH: "examples/function_demo/mwifi/mqtt_example"
+
+build_example_mwifi_ethernet_example:
+  <<: *build_template
+  variables:
+    ARTIFACTS_NAME: "mwifi"
+    EXAMPLE_PATH: "examples/function_demo/mwifi/root_on_ethernet"
+
 build_example_mcommon:
   <<: *build_template
   variables:
@@ -121,11 +139,11 @@ build_example_button:
     ARTIFACTS_NAME: "button"
     EXAMPLE_PATH: "examples/development_kit/button"
 
-build_example_maliyun_linkkit_light:
+build_example_buddy:
   <<: *build_template
   variables:
-    ARTIFACTS_NAME: "maliyun_linkkit_light"
-    EXAMPLE_PATH: "examples/maliyun_linkkit/light"
+    ARTIFACTS_NAME: "buddy"
+    EXAMPLE_PATH: "examples/development_kit/buddy"
 
 push_master_to_github:
   stage: deploy

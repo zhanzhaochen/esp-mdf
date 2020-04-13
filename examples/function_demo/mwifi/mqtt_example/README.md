@@ -4,12 +4,12 @@
 
 ## Overview
 
-This demo will show how to connect a device to a remote external server based on `Mwifi` APIs. The device first transfers all data through ESP-MESH network to the root node that connects to MQTT remote server (mqtt://iot.eclipse.org) using LWIP.
+This demo will show how to connect a device to a remote external server based on `Mwifi` APIs. The device first transfers all data through ESP-WIFI-MESH network to the root node that connects to remote server (mqtt://iot.eclipse.org) using MQTT.
 
 ## Hardware
 
 1. At least two ESP32 development boards
-2. One 2.4 G router 
+2. One 2.4 G router
 3. One phone or PC with MQTT debugging tool
 
 ## Workflow
@@ -31,8 +31,8 @@ make erase_flash flash -j5 monitor ESPBAUD=921600 ESPPORT=/dev/ttyUSB0
 
 ### Run Your Device
 
-1. The ESP-MESH device advertises its information to Topic:"/topic/subdev/MAC/send" (MAC: node MAC address) every three seconds.
-2. When routing table in ESP-MESH network changes, the ESP-MESH device will advertises relevant information about the changed node to Topic:"/topic/gateway/MAC/update" (MAC: root node MAC address).
+1. The ESP-WIFI-MESH device advertises its information to Topic:"/topic/subdev/MAC/send" (MAC: node MAC address) every three seconds.
+2. When routing table in ESP-WIFI-MESH network changes, the ESP-WIFI-MESH device will advertises relevant information about the changed node to Topic:"/topic/gateway/MAC/update" (MAC: root node MAC address).
 3. The device receives server data from Topic:"/topic/subdev/MAC/recv".
 
 For example:

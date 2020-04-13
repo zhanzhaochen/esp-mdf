@@ -52,7 +52,7 @@ typedef struct {
     uint32_t tid;                             /**< The identifier of the device type */
     char name[32];                            /**< The name of the device */
     char position[32];                        /**< The position the device */
-    char version[16];                         /**< The version of the device */
+    char version[32];                         /**< The version of the device */
     uint8_t characteristics_num;              /**< The number of device attributes */
     mlink_characteristics_t *characteristics; /**< The characteristics of the device */
 } mlink_device_t;
@@ -257,6 +257,9 @@ static mdf_err_t mlink_handle_get_info(mlink_handle_data_t *handle_data)
     handle_data->resp_data       = NULL;
     char *characteristics_list   = NULL;
     characteristic_value_t value = {0};
+    mesh_addr_t parent_bssid     = {0};
+    uint8_t parent_mac[6]        = {0};
+    uint8_t self_mac[6]          = {0};
     mlink_characteristics_t *characteristic = g_device_info->characteristics;
 
     const char *characteristic_format_int =
@@ -276,9 +279,20 @@ static mdf_err_t mlink_handle_get_info(mlink_handle_data_t *handle_data)
     }
 
     sprintf(tmp_str, "%d", g_device_info->tid);
+    esp_mesh_get_parent_bssid(&parent_bssid);
+
+    if (esp_mesh_get_layer() == MESH_ROOT) {
+        memcpy(parent_mac, parent_bssid.addr, 6);
+    } else {
+        mlink_mac_ap2sta(parent_bssid.addr, parent_mac);
+    }
+
+    esp_wifi_get_mac(ESP_IF_WIFI_STA, self_mac);
 
     mlink_json_pack(&handle_data->resp_data, "tid", tmp_str);
     mlink_json_pack(&handle_data->resp_data, "name", g_device_info->name);
+    mlink_json_pack(&handle_data->resp_data, "self_mac", mlink_mac_hex2str(self_mac, tmp_str));
+    mlink_json_pack(&handle_data->resp_data, "parent_mac",  mlink_mac_hex2str(parent_mac, tmp_str));
     mlink_json_pack(&handle_data->resp_data, "mesh_id", mlink_mac_hex2str(mesh_id.addr, tmp_str));
     mlink_json_pack(&handle_data->resp_data, "version", g_device_info->version);
     mlink_json_pack(&handle_data->resp_data, "idf_version", esp_get_idf_version());
@@ -435,23 +449,8 @@ static mdf_err_t mlink_handle_set_status(mlink_handle_data_t *handle_data)
     int cid         = 0;
     mdf_err_t ret   = MDF_OK;
     size_t cids_num = 0;
-    char tsf_time_str[16] = {0x0};
     characteristic_value_t value = {0};
     char *characteristics_list[CHARACTERISTICS_MAX_NUM] = {NULL};
-
-    /**
-     * @brief If `tsf_time_us` is included, the device will delay running set commands
-     */
-    if (mlink_json_parse(handle_data->req_data, "tsf_time_us", tsf_time_str) == MDF_OK) {
-        uint64_t tsf_time_us = 0;
-        scanf(tsf_time_str, "%llu", &tsf_time_us);
-
-        int64_t delay_running = (tsf_time_us - esp_mesh_get_tsf_time()) / 1000;
-
-        if (delay_running > 0 && delay_running < 3 * 1000) {
-            vTaskDelay(pdMS_TO_TICKS(delay_running));
-        }
-    }
 
     ret = mlink_json_parse(handle_data->req_data, "characteristics", &cids_num);
     MDF_ERROR_CHECK(ret != MDF_OK, ret, "Parse the json formatted string");
@@ -473,22 +472,22 @@ static mdf_err_t mlink_handle_set_status(mlink_handle_data_t *handle_data)
                 ret = mlink_json_parse(characteristics_list[i], "value", &value.value_int);
                 MDF_ERROR_BREAK(ret != MDF_OK, "<%s> Parse the json formatted string", mdf_err_to_name(ret));
                 ret = mlink_device_set_value(cid, &value.value_int);
-                MDF_ERROR_BREAK(ret != MDF_OK, "<%s> Parse the json formatted string", mdf_err_to_name(ret));
+                MDF_ERROR_BREAK(ret != MDF_OK, "<%s> mlink_device_set_value, cid: %d, value: %d", mdf_err_to_name(ret), cid, value.value_int);
                 break;
 
             case CHARACTERISTIC_FORMAT_DOUBLE:
                 ret = mlink_json_parse(characteristics_list[i], "value", &value.value_double);
                 MDF_ERROR_BREAK(ret != MDF_OK, "<%s> Parse the json formatted string", mdf_err_to_name(ret));
                 ret = mlink_device_set_value(cid, &value.value_double);
-                MDF_ERROR_BREAK(ret != MDF_OK, "<%s> Parse the json formatted string", mdf_err_to_name(ret));
+                MDF_ERROR_BREAK(ret != MDF_OK, "<%s> mlink_device_set_value, cid: %d, value: %f", mdf_err_to_name(ret), cid, value.value_double);
                 break;
 
             case CHARACTERISTIC_FORMAT_STRING:
                 ret = mlink_json_parse(characteristics_list[i], "value", &value.value_string);
                 MDF_ERROR_BREAK(ret != MDF_OK, "<%s> Parse the json formatted string", mdf_err_to_name(ret));
                 ret = mlink_device_set_value(cid, value.value_string);
-				MDF_FREE(value.value_string);
-                MDF_ERROR_BREAK(ret != MDF_OK, "<%s> Parse the json formatted string", mdf_err_to_name(ret));
+                MDF_FREE(value.value_string);
+                MDF_ERROR_BREAK(ret != MDF_OK, "<%s> mlink_device_set_value,", mdf_err_to_name(ret));
                 break;
 
             default:
@@ -664,7 +663,7 @@ static mdf_err_t mlink_handle_set_config(mlink_handle_data_t *handle_data)
     if (mlink_json_parse(handle_data->req_data, "beacon_interval", &data) == ESP_OK) {
         ret = esp_mesh_set_beacon_interval(data);
         MDF_ERROR_CHECK(ret < 0, ESP_FAIL, "esp_mesh_set_beacon_interval, ret: %d", ret);
-        MDF_LOGI("ESP-MESH beacon interval: %d ms", data);
+        MDF_LOGI("ESP-WIFI-MESH beacon interval: %d ms", data);
     }
 
     if (mlink_json_parse(handle_data->req_data, "log_level", &data) == ESP_OK) {

@@ -64,6 +64,11 @@ void mdf_mem_print_record(void);
 void mdf_mem_print_heap(void);
 
 /**
+ * @brief Print the state of tasks in the system
+ */
+void mdf_mem_print_task(void);
+
+/**
  * @brief  Malloc memory
  *
  * @param  size  Memory size
@@ -142,7 +147,7 @@ void mdf_mem_print_heap(void);
  */
 #define MDF_REALLOC_RETRY(ptr, size) ({ \
         void *new_ptr = NULL; \
-        while (!(new_ptr = realloc(ptr, size))) { \
+        while (size && !(new_ptr = realloc(ptr, size))) { \
             MDF_LOGW("<ESP_ERR_NO_MEM> Realloc size: %d, new_ptr: %p, heap free: %d", (int)size, new_ptr, esp_get_free_heap_size()); \
             vTaskDelay(pdMS_TO_TICKS(100)); \
         } \

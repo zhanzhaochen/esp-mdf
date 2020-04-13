@@ -42,7 +42,7 @@ static mdf_err_t initialize_filesystem()
     esp_err_t ret = MDF_OK;
     static wl_handle_t wl_handle;
     const esp_vfs_fat_mount_config_t mount_config = {
-        .max_files = 4,
+        .max_files = 1,
         .format_if_mount_failed = true
     };
 
@@ -58,6 +58,7 @@ static mdf_err_t initialize_filesystem()
 
 static void initialize_console()
 {
+#if !CONFIG_CONSOLE_UART_NONE
     /**< Disable buffering on stdin */
     setvbuf(stdin, NULL, _IONBF, 0);
 
@@ -83,6 +84,8 @@ static void initialize_console()
     /**< Tell VFS to use UART driver */
     esp_vfs_dev_uart_use_driver(CONFIG_CONSOLE_UART_NUM);
 
+#endif /*!< CONFIG_CONSOLE_UART_NONE */
+
     /**< Initialize the console */
     esp_console_config_t console_config = {
         .max_cmdline_args   = 8,
@@ -100,7 +103,7 @@ static void initialize_console()
 
     /**< Tell linenoise where to get command completions and hints */
     linenoiseSetCompletionCallback(&esp_console_get_completion);
-    linenoiseSetHintsCallback((linenoiseHintsCallback*) &esp_console_get_hint);
+    linenoiseSetHintsCallback((linenoiseHintsCallback *) &esp_console_get_hint);
 
     /**< Set command history size */
     linenoiseHistorySetMaxLen(100);
@@ -111,6 +114,7 @@ static void initialize_console()
 #endif /**< CONFIG_MDEBUG_STORE_HISTORY */
 }
 
+#if !CONFIG_CONSOLE_UART_NONE
 static void console_handle_task(void *arg)
 {
     mdf_err_t ret = MDF_OK;
@@ -156,12 +160,14 @@ static void console_handle_task(void *arg)
     MDF_LOGI("console handle exit");
     vTaskDelete(NULL);
 }
+#endif /*!< CONFIG_CONSOLE_UART_NONE */
 
 mdf_err_t mdebug_console_init()
 {
     /** Wait until uart tx full empty and the last char send ok. */
     fflush(stdout);
     uart_tx_wait_idle(CONFIG_CONSOLE_UART_NUM);
+
 #if CONFIG_MDEBUG_STORE_HISTORY
     initialize_filesystem();
 #endif /**< CONFIG_MDEBUG_STORE_HISTORY */
@@ -195,15 +201,20 @@ mdf_err_t mdebug_console_init()
         linenoiseSetDumbMode(1);
     }
 
+#if !CONFIG_CONSOLE_UART_NONE
     xTaskCreate(console_handle_task, "console_handle", 1024 * 4, NULL, 1, NULL);
+#endif /*!< CONFIG_CONSOLE_UART_NONE */
 
     return MDF_OK;
 }
 
 mdf_err_t mdebug_console_deinit()
 {
+    mdf_err_t ret = MDF_OK;
     g_running_flag = false;
-    esp_console_deinit();
+
+    ret = esp_console_deinit();
+    MDF_ERROR_CHECK(ret != MDF_OK, ret, "de-initialize console module");
 
     return MDF_OK;
 }

@@ -116,7 +116,7 @@ ESP-IDF 集成了用于请求堆信息，检测堆损坏和跟踪内存泄漏的
 任务调度
 ^^^^^^^^^
 
-使用 :cpp:func:`mdf_mem_print_heap` 可以获取所有任务的运行状态、优先级和栈的剩余空间::
+使用 :cpp:func:`mdf_mem_print_task` 可以获取所有任务的运行状态、优先级和栈的剩余空间::
 
     Task Name       Status  Prio    HWM     Task
     main            R       1       1800    3
@@ -142,7 +142,7 @@ ESP-IDF 集成了用于请求堆信息，检测堆损坏和跟踪内存泄漏的
 
 .. Note::
 
-    1. 调用 :cpp:func:`mdf_mem_print_heap` 会挂起所有任务，这一过程可能持续较长时间，因此建议本函数仅在调试时使用；
+    1. 调用 :cpp:func:`mdf_mem_print_task` 会挂起所有任务，这一过程可能持续较长时间，因此建议本函数仅在调试时使用；
     2. 配置：通过 ``make menuconfig`` 开启 :envvar:`CONFIG_FREERTOS_USE_TRACE_FACILITY` 和 :envvar:`CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS`；
     3. 状态：R（Ready）代表准备态，B（blocked）代表阻塞态；
     4. 剩余空间：HWM（High Water Mark）应不小于 512 byte，防止栈溢出。
@@ -223,8 +223,8 @@ python 与 pyserial 版本不兼容::
         sudo pip install --ignore-installed pyserial
 
 
-ESP-MESH 错误
-^^^^^^^^^^^^^^
+ESP-WIFI-MESH 错误
+^^^^^^^^^^^^^^^^^^^^^
 
 1. **设备无法连接路由器**
 
@@ -247,8 +247,8 @@ ESP-MESH 错误
 
 
 - 原因：
-    1. 未配置信道：ESP-MESH 为了更快速的进行组网，因此只在固定的一个信道上进行扫描，因此必须配置 ESP-MESH 的工作信道；
-    2. 连接隐藏路由器：当 ESP-MESH 连接隐藏路由器时，必须配置路由器的 BSSID；
+    1. 未配置信道：ESP-WIFI-MESH 为了更快速的进行组网，因此只在固定的一个信道上进行扫描，因此必须配置 ESP-WIFI-MESH 的工作信道；
+    2. 连接隐藏路由器：当 ESP-WIFI-MESH 连接隐藏路由器时，必须配置路由器的 BSSID；
     3. 路由器信道通常是非固定的，路由器会根据网络情况进行信道迁移。
 
 - 解决方式：
