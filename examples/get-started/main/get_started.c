@@ -18,6 +18,8 @@
 // #define MEMORY_DEBUG
 
 static const char *TAG = "get_started";
+static esp_netif_t *netif_sta;
+
 
 static void root_task(void *arg)
 {
@@ -162,8 +164,9 @@ static mdf_err_t wifi_init()
 
     MDF_ERROR_ASSERT(ret);
 
-    tcpip_adapter_init();
-    MDF_ERROR_ASSERT(esp_event_loop_init(NULL, NULL));
+    MDF_ERROR_ASSERT(esp_netif_init());
+    MDF_ERROR_ASSERT(esp_event_loop_create_default());
+    MDF_ERROR_ASSERT(esp_netif_create_default_wifi_mesh_netifs(&netif_sta, NULL));
     MDF_ERROR_ASSERT(esp_wifi_init(&cfg));
     MDF_ERROR_ASSERT(esp_wifi_set_storage(WIFI_STORAGE_FLASH));
     MDF_ERROR_ASSERT(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -193,6 +196,9 @@ static mdf_err_t event_loop_cb(mdf_event_loop_t event, void *ctx)
 
         case MDF_EVENT_MWIFI_PARENT_CONNECTED:
             MDF_LOGI("Parent is connected on station interface");
+            if (esp_mesh_is_root()) {
+                esp_netif_dhcpc_start(netif_sta);
+            }
             break;
 
         case MDF_EVENT_MWIFI_PARENT_DISCONNECTED:

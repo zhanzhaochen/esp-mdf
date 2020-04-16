@@ -58,7 +58,7 @@ static mdf_err_t initialize_filesystem()
 
 static void initialize_console()
 {
-#if !CONFIG_CONSOLE_UART_NONE
+#if !CONFIG_ESP_CONSOLE_UART_NONE
     /**< Disable buffering on stdin */
     setvbuf(stdin, NULL, _IONBF, 0);
 
@@ -70,19 +70,19 @@ static void initialize_console()
     /**< Configure UART. Note that REF_TICK is used so that the baud rate remains
      * correct while APB frequency is changing in light sleep mode. */
     const uart_config_t uart_config = {
-        .baud_rate    = CONFIG_CONSOLE_UART_BAUDRATE,
+        .baud_rate    = CONFIG_ESP_CONSOLE_UART_BAUDRATE,
         .data_bits    = UART_DATA_8_BITS,
         .parity       = UART_PARITY_DISABLE,
         .stop_bits    = UART_STOP_BITS_1,
         .use_ref_tick = true
     };
-    ESP_ERROR_CHECK(uart_param_config(CONFIG_CONSOLE_UART_NUM, &uart_config));
+    ESP_ERROR_CHECK(uart_param_config(CONFIG_ESP_CONSOLE_UART_NUM, &uart_config));
 
     /**< Install UART driver for interrupt-driven reads and writes */
-    ESP_ERROR_CHECK(uart_driver_install(CONFIG_CONSOLE_UART_NUM, 256, 0, 0, NULL, 0));
+    ESP_ERROR_CHECK(uart_driver_install(CONFIG_ESP_CONSOLE_UART_NUM, 256, 0, 0, NULL, 0));
 
     /**< Tell VFS to use UART driver */
-    esp_vfs_dev_uart_use_driver(CONFIG_CONSOLE_UART_NUM);
+    esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
 
 #endif /*!< CONFIG_CONSOLE_UART_NONE */
 
@@ -114,7 +114,7 @@ static void initialize_console()
 #endif /**< CONFIG_MDEBUG_STORE_HISTORY */
 }
 
-#if !CONFIG_CONSOLE_UART_NONE
+#if !CONFIG_ESP_CONSOLE_UART_NONE
 static void console_handle_task(void *arg)
 {
     mdf_err_t ret = MDF_OK;
@@ -166,7 +166,7 @@ mdf_err_t mdebug_console_init()
 {
     /** Wait until uart tx full empty and the last char send ok. */
     fflush(stdout);
-    uart_tx_wait_idle(CONFIG_CONSOLE_UART_NUM);
+    uart_tx_wait_idle(CONFIG_ESP_CONSOLE_UART_NUM);
 
 #if CONFIG_MDEBUG_STORE_HISTORY
     initialize_filesystem();
@@ -201,7 +201,7 @@ mdf_err_t mdebug_console_init()
         linenoiseSetDumbMode(1);
     }
 
-#if !CONFIG_CONSOLE_UART_NONE
+#if !CONFIG_ESP_CONSOLE_UART_NONE
     xTaskCreate(console_handle_task, "console_handle", 1024 * 4, NULL, 1, NULL);
 #endif /*!< CONFIG_CONSOLE_UART_NONE */
 
