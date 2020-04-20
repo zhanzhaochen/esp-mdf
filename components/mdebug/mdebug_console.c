@@ -11,8 +11,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include "sdkconfig.h"
 
+#ifdef CONFIG_IDF_TARGET_ESP32S2
+#include "esp32s2/rom/uart.h"
+#endif
+
+#ifdef CONFIG_IDF_TARGET_ESP32
 #include "esp32/rom/uart.h"
+#endif
+
 
 #include "esp_console.h"
 #include "esp_vfs_dev.h"
