@@ -39,6 +39,7 @@ static bool g_rootless_flag = false;
 static mesh_event_toDS_state_t g_toDs_status_flag = false;
 static esp_timer_handle_t g_waive_root_timer      = NULL;
 static int g_waive_root_interval                  = MWIFI_WAIVE_ROOT_INTERVAL; /**< Avoid frequent triggers waive root*/
+//static esp_netif_t *netif_sta, *netif_ap;
 
 bool mwifi_is_started()
 {
@@ -168,12 +169,21 @@ static void esp_mesh_event_cb(void *arg, esp_event_base_t event_base, int32_t ev
             s_disconnected_count = 0;
 
             /**< Start DHCP client on station interface for root node */
+            //esp_netif_dhcp_status_t netif_status;
             if (esp_mesh_is_root()) {
-                tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
+                //MDF_LOGI("heheda");
+                //MDF_ERROR_ASSERT(esp_netif_dhcpc_get_status(netif_sta,&netif_status));
+                //if(netif_status != ESP_NETIF_DHCP_STARTED){
+                //    esp_netif_dhcpc_start(netif_sta);
+                //}
                 g_rootless_flag = false;
-            } else {
-                tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
             }
+            //else {
+            //    MDF_ERROR_ASSERT(esp_netif_dhcpc_get_status(netif_ap,&netif_status));
+            //    if(netif_status != ESP_NETIF_DHCP_STOPPED){
+            //        esp_netif_dhcpc_stop(netif_ap);
+            //    }
+            //}
 
             break;
         }
@@ -220,8 +230,18 @@ static void esp_mesh_event_cb(void *arg, esp_event_base_t event_base, int32_t ev
             /** stop DHCP server on softAP interface
                  * stop DHCP client on station interface
                  */
-            tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
-            tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+            //tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
+            //MDF_LOGI("heheda");
+            //esp_netif_dhcp_status_t netif_status;
+            //MDF_ERROR_ASSERT(esp_netif_dhcpc_get_status(netif_sta,&netif_status));
+            //if(netif_status != ESP_NETIF_DHCP_STARTED){
+            //    esp_netif_dhcpc_start(netif_sta);
+            //}
+            //MDF_ERROR_ASSERT(esp_netif_dhcpc_get_status(netif_ap,&netif_status));
+            //if(netif_status != ESP_NETIF_DHCP_STOPPED){
+            //    esp_netif_dhcpc_stop(netif_ap);
+            //}
+            //tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
             break;
         }
 
@@ -233,8 +253,18 @@ static void esp_mesh_event_cb(void *arg, esp_event_base_t event_base, int32_t ev
             /** stop DHCP server on softAP interface
                  * stop DHCP client on station interface
                  */
-            tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
-            tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
+            //tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
+            //MDF_LOGI("heheda");
+            //esp_netif_dhcp_status_t netif_status;
+            //MDF_ERROR_ASSERT(esp_netif_dhcpc_get_status(netif_sta,&netif_status));
+            //if(netif_status != ESP_NETIF_DHCP_STARTED){
+            //    esp_netif_dhcpc_start(netif_sta);
+            //}
+            //MDF_ERROR_ASSERT(esp_netif_dhcpc_get_status(netif_ap,&netif_status));
+            //if(netif_status != ESP_NETIF_DHCP_STARTED){
+            //    esp_netif_dhcpc_start(netif_ap);
+            //}
+            //tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
             break;
         }
 
@@ -419,8 +449,9 @@ mdf_err_t mwifi_start()
 
     /**< Set mesh event callback. */
     //mesh_config.event_cb = esp_mesh_event_cb;
-    ESP_ERROR_CHECK(esp_event_handler_register(MESH_EVENT, ESP_EVENT_ANY_ID, &esp_mesh_event_cb, NULL));
+    //ESP_ERROR_CHECK(esp_netif_create_default_wifi_mesh_netifs(&netif_sta,&netif_ap));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, ESP_EVENT_ANY_ID, &esp_ip_event_cb, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MESH_EVENT, ESP_EVENT_ANY_ID, &esp_mesh_event_cb, NULL));
 
     /**
      * @brief Mesh root configuration
