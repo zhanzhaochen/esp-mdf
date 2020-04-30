@@ -104,6 +104,7 @@ extern "C" {
          * @brief Mesh network capacity configuration
          */
         uint16_t capacity_num;      /**< Network capacity, defining max number of devices allowed in the MESH network */
+        uint8_t topology;           /**< Topology of mesh network, can be tree or chain */
         uint8_t max_layer;          /**< Max number of allowed layers */
         uint8_t max_connection;     /**< Max number of MESH softAP connections */
 
@@ -147,6 +148,7 @@ extern "C" {
         /**< .root_conflicts_enable =*/ CONFIG_MWIFI_ROOT_CONFLICTS_ENABLE, \
         /**< .root_healing_ms       =*/ CONFIG_MWIFI_ROOT_HEALING_MS, \
         /**< .capacity_num          =*/ CONFIG_MWIFI_CAPACITY_NUM, \
+        /**< .topology              =*/ CONFIG_MWIFI_TOPOLOGY, \
         /**< .max_layer             =*/ CONFIG_MWIFI_MAX_LAYER, \
         /**< .max_connection        =*/ CONFIG_MWIFI_MAX_CONNECTION, \
         /**< .assoc_expire_ms       =*/ CONFIG_MWIFI_ASSOC_EXPIRE_MS, \

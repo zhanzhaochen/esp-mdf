@@ -230,8 +230,8 @@ static void node_write_task(void *arg)
             continue;
         }
 
-        size = asprintf(&data, "{\"src_addr\": \"" MACSTR "\",\"data\": \"Hello TCP Server!\",\"count\": %d}",
-                        MAC2STR(sta_mac), count++);
+        size = asprintf(&data, "{\"src_addr\": \"" MACSTR "\",\"data\": \"Hello TCP Server!\",\"count\": %d, \"layer\": %d}",
+                        MAC2STR(sta_mac), count++, esp_mesh_get_layer());
 
         MDF_LOGD("Node send, size: %d, data: %s", size, data);
         ret = mwifi_write(NULL, &data_type, data, size, true);
@@ -384,6 +384,8 @@ void app_main()
     MDF_ERROR_ASSERT(mwifi_init(&cfg));
     MDF_ERROR_ASSERT(mwifi_set_config(&config));
     MDF_ERROR_ASSERT(mwifi_start());
+
+    mwifi_print_config();
 
     /**
      * @brief select/extend a group memebership here

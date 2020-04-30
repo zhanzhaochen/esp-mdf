@@ -376,6 +376,7 @@ void mwifi_print_config()
     MDF_LOGI("max_layer             : %d", esp_mesh_get_max_layer());
     MDF_LOGI("max_connection        : %d", cfg.mesh_ap.max_connection);
     MDF_LOGI("capacity_num          : %d", esp_mesh_get_capacity_num());
+    MDF_LOGI("topology              : %d", esp_mesh_get_topology());
 
     MDF_LOGI("****************  Stability  ****************");
     MDF_LOGI("assoc_expire_ms       : %d", esp_mesh_get_ap_assoc_expire() * 1000);
@@ -477,6 +478,7 @@ mdf_err_t mwifi_start()
      *  - Set mesh network capacity (max:1000, default:300)
      */
     mesh_config.mesh_ap.max_connection = init_config->max_connection;
+    ESP_ERROR_CHECK(esp_mesh_set_topology(init_config->topology));
     ESP_ERROR_CHECK(esp_mesh_set_max_layer(init_config->max_layer));
     ESP_ERROR_CHECK(esp_mesh_set_capacity_num(init_config->capacity_num));
 
